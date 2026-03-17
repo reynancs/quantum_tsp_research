@@ -1,0 +1,13 @@
+Otima pergunta — vou cruzar os critérios de viabilidade com o que o hardware atual suporta.Relevant chatsRelevant chatsTenho o contexto completo do projeto. Agora vou fazer a análise cruzando viabilidade, qubits necessários e disponibilidade de dataset.Aqui está a análise detalhada das 3 opções:
+
+Opção 1 — Liu et al. (2024) — a mais recomendada para o seu perfil
+A estratégia de path-slicing é o ponto chave: em vez de resolver o TSP inteiro de uma vez, divide o problema em subproblemas menores que cabem no hardware atual (≤20 qubits). O dataset TSPLIB tem instâncias de 4 a 20 cidades com solução ótima conhecida — ideal para validar os resultados. Roda em simulador local com o Ocean SDK da D-Wave, sem custo.
+
+Opção 2 — Salehi et al. (2022) — a mais simples e didática
+A mais adequada para um primeiro artigo. Com apenas 4 cidades e 3 formulações QUBO comparadas, você tem material metodológico rico com complexidade mínima. Qualquer laptop roda via Qiskit Aer ou o simulador online da IBM. O ponto forte para o artigo: comparar as 3 formulações gera uma discussão de resultados mais completa do que simplesmente rodar um único algoritmo.
+
+Opção 3 — Borowski et al. (2020) — a mais próxima de logística real
+A única das três que trabalha com VRP (veículos com capacidade), o que é mais realista para logística. O D-Wave Leap tem acesso gratuito para pesquisa acadêmica e o CVRPLIB é um benchmark consolidado. É a opção mais complexa das três, mas produz o artigo com maior impacto prático.
+
+📌 Minha sugestão direta: Comece pela Opção 2 como base metodológica (simples, reprodutível, bem documentada) e use a Opção 1 como referência para discutir escalabilidade. 
+

@@ -1,0 +1,27 @@
+﻿string_numero,descricao,artigos_unicos
+1,"""Traveling Salesman Problem"" AND ""Quantum Computing""",391
+2,"""Traveling Salesman"" AND ""Quantum Algorithms""",260
+3,"""TSP"" AND ""Quantum Annealing""",123
+4,"""Traveling Salesman"" AND ""QAOA""",79
+5,"""TSP"" AND ""Hybrid Quantum""",67
+6,"""Vehicle Routing"" AND ""Quantum Computing""",179
+7,"""Combinatorial Optimization"" AND ""Quantum Annealing""",792
+8,"""TSP"" AND ""VQE""",19
+9,"""Traveling Salesman"" AND ""Grover""",329
+10,"""QUBO"" AND ""Traveling Salesman""",139
+11,"""Route Optimization"" AND ""Quantum"" AND ""Logistics""",106
+12,"""TSP"" AND ""D-Wave""",87
+13,"""TSP"" AND ""IBM Quantum""",16
+14,"""Traveling Salesman"" AND ""Ising Model""",272
+15,"""Vehicle Routing"" AND ""Quantum Annealing"" AND ""Logistics""",40
+16,"""Hamiltonian Cycle"" AND ""Quantum""",245
+17,"""Vehicle Routing Problem"" AND ""QAOA""",27
+18,"""Quantum Computing"" AND ""Supply Chain Management""",385
+19,"""Traveling Salesman"" AND ""Quantum-Inspired""",181
+20,"""Quantum Reinforcement Learning"" AND ""Routing""",21
+21,"""CVRP"" AND ""Quantum Annealing""",18
+22,"""Job Shop Scheduling"" AND ""Quantum""",341
+23,"""Bin Packing"" AND ""Quantum""",246
+24,"""Facility Location"" AND ""Quantum Computing""",27
+25,"""Knapsack Problem"" AND ""Quantum""",804
+26,"""Quantum Machine Learning"" AND ""Supply Chain""",79
