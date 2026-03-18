@@ -1,0 +1,130 @@
+﻿id,autores,paradigma,algoritmo_quantico,topico,subtopico,problema,abordagem,fonte
+1,Ajagekar et al.,QA,QUBO,Routing,VRP,VRP,Hybrid,Phillipson 2025
+2,Alsaiyari et al.,GBC,QAOA/VQE,Routing,VRP,VRP,Hybrid,Phillipson 2025
+3,Atchade-Adelomou et al.,QA e GBC,QUBO,Routing,Order Picking,Picking,Hybrid,Phillipson 2025
+4,Azad et al.,GBC,QAOA,Routing,VRP,VRP,Hybrid,Phillipson 2025
+5,Azzaoui et al.,GBC,QAOA,Routing,TSP,TSP,Hybrid,Phillipson 2025
+6,Bentley et al.,GBC,QAOA,Routing,CVRP,CVRP,Hybrid,Phillipson 2025
+7,Borowski et al.,QA,QUBO,Routing,CVRP,VRP/CVRP,Full e Hybrid,Phillipson 2025
+8,Bourreau et al.,GBC,QAOA,Routing,TSP,TSP,Hybrid,Phillipson 2025
+9,Cattelan et al.,QA,QUBO,Routing,RPP,RPP,Hybrid,Phillipson 2025
+10,Correll et al.,GBC,QML,Routing,VRP,VRP,Hybrid,Phillipson 2025
+11,Dixit et al.,QA,QUBO,Routing,STDSP,STDSP,Full Quantum,Phillipson 2025
+12,Feld et al.,QA,QUBO,Routing,CVRP,CVRP,Hybrid,Phillipson 2025
+13,Fitzek et al. (a),GBC,QAOA,Routing,HVRP,HVRP,Hybrid,Phillipson 2025
+14,Fitzek et al. (b),GBC,QAOA,Routing,HVRP,HVRP,Hybrid,Phillipson 2025
+15,Harikrishnakumar et al.,QA,QUBO,Routing,MDCVRP,(D-)MDCVRP,Full Quantum,Phillipson 2025
+16,Herzog et al.,GBC,QAOA,Routing,CVRP,CVRP,Hybrid,Phillipson 2025
+17,Harwood et al.,GBC,QAOA,Routing,VRPTW,VRPTW,Hybrid,Phillipson 2025
+18,Irie et al.,QA,QUBO,Routing,CVRPTW,CVRPTW,Hybrid,Phillipson 2025
+19,Kanai et al.,QA,QUBO,Routing,CVRP,CVRP,Hybrid,Phillipson 2025
+20,Khan et al.,GBC,Grover,Routing,FRO,FRO,Hybrid,Phillipson 2025
+21,Khumalo et al.,GBC,QAOA/VQE,Routing,TSP,TSP,Hybrid,Phillipson 2025
+22,Le et al.,QA,QUBO,Routing,sTSP,sTSP,Hybrid,Phillipson 2025
+23,Leonidas et al.,GBC,QAOA,Routing,VRPTW,VRPTW,Hybrid,Phillipson 2025
+24,Li et al.,GBC,VQE,Routing,VRP,VRP,Hybrid,Phillipson 2025
+25,Liu et al.,QA,QUBO,Routing,TSP,TSP,Hybrid,Phillipson 2025
+26,Lo et al.,QRNG,,Routing,VRP,VRP,Hybrid,Phillipson 2025
+27,Makhanov et al. (a),GBC,Grover,Routing,SPP,SPP,Hybrid,Phillipson 2025
+28,Makhanov et al. (b),GBC,Grover,Routing,FRO,FRO,Hybrid,Phillipson 2025
+29,Mario et al.,QA,QUBO,Routing,CVRP,CVRP,Hybrid,Phillipson 2025
+30,Marsoit et al.,QA,QUBO,Routing,CVRP,CVRP,Hybrid,Phillipson 2025
+31,Masuda et al.,CA,QUBO,Routing,TDVRPTW,TDVRPTW,Full Quantum,Phillipson 2025
+32,Mohanty et al. (a),GBC,VQE,Routing,VRP,VRP,Hybrid,Phillipson 2025
+33,Mohanty et al. (b),GBC,QML,Routing,VRP,VRP,Hybrid,Phillipson 2025
+34,Neukart et al.,QA,QUBO,Routing,Flow Optimization,Flow opt.,Hybrid,Phillipson 2025
+35,Osaba et al. (a),QA,QUBO,Routing,CVRP,CVRP,Hybrid,Phillipson 2025
+36,Palackal et al.,GBC,QAOA/VQE,Routing,TSP,TSP,Hybrid,Phillipson 2025
+37,Palmieri et al.,QA e GBC,QUBO,Routing,CVRP,CVRP,Hybrid,Phillipson 2025
+38,Papalitsas et al.,QA,QUBO,Routing,TSPTW,TSPTW,Full Quantum,Phillipson 2025
+39,Phillipson et al.,QA,QUBO,Routing,Flow Optimization,Flow opt.,Hybrid,Phillipson 2025
+40,Poggel et al.,Generic,,Routing,CVRP,CVRP,Hybrid,Phillipson 2025
+41,Qiu et al.,GBC,QACO,Routing,TSP,TSP,Hybrid,Phillipson 2025
+42,Ramezani et al.,GBC,QAOA,Routing,TSP,TSP,Hybrid,Phillipson 2025
+43,Rana et al.,QA e GBC,QUBO,Routing,CVRP,CVRP,Hybrid,Phillipson 2025
+44,Rosendo et al.,QA e GBC,QUBO,Routing,CVRP,CVRP,Hybrid,Phillipson 2025
+45,Sadashivan et al.,QA,QUBO,Routing,CVRP,CVRP,Hybrid,Phillipson 2025
+46,Salehi et al.,QA,QUBO,Routing,TSPTW,TSPTW,Full Quantum,Phillipson 2025
+47,Sales et al.,QA,QUBO,Routing,CVRP,CVRP,Full e Hybrid,Phillipson 2025
+48,Salloum et al. (a),QA,QUBO,Routing,TFO,TFO,Hybrid,Phillipson 2025
+49,Salloum et al. (b),QA,QUBO,Routing,TFO,TFO,Hybrid,Phillipson 2025
+50,Sanches et al.,GBC,RL,Routing,CVRP,CVRP,Hybrid,Phillipson 2025
+51,Sato et al.,GBC,Grover,Routing,TSP,TSP,Full Quantum,Phillipson 2025
+52,Sinno et al.,QA,QUBO,Routing,CVRP,CVRP,Hybrid,Phillipson 2025
+53,Spyridis et al.,GBC,QAOA,Routing,m-TSP,m-TSP,Hybrid,Phillipson 2025
+54,Srinivasan et al.,GBC,QPE,Routing,TSP,TSP,Hybrid,Phillipson 2025
+55,Tejani et al.,GBC,QPE,Routing,BTSP,BTSP,Hybrid,Phillipson 2025
+56,Warren et al.,QA,QUBO,Routing,TSP,TSP,Full e Hybrid,Phillipson 2025
+57,Weinberg et al.,QA,QUBO,Routing,CVRP,CVRP,Hybrid,Phillipson 2025
+58,Wesolowski et al.,GBC,,Routing,SPSP,SPSP,Full Quantum,Phillipson 2025
+59,Xie et al.,GBC,QAOA,Routing,CVRP,CVRP,Hybrid,Phillipson 2025
+60,Xu et al.,GBC,QML,Routing,CVRP,CVRP,Hybrid,Phillipson 2025
+61,Yarkoni et al. (a),QA,QUBO,Routing,SRP,SRP,Hybrid,Phillipson 2025
+62,Buss et al.,GBC,QAOA,Network Design,FLP,FLP,Hybrid,Phillipson 2025
+63,Chiscop et al.,QA,QUBO,Network Design,MSLSCP,MSLSCP,Hybrid,Phillipson 2025
+64,Choo et al.,QA,QUBO,Network Design,FLP,FLP,Hybrid,Phillipson 2025
+65,Ding et al. (a),QA,QUBO,Network Design,NDP,NDP,Hybrid,Phillipson 2025
+66,Ding et al. (b),QA,QUBO,Network Design,NDP,NDP,Full Quantum,Phillipson 2025
+67,Dixit et al. (b),QA,QUBO,Network Design,NDP,NDP,Hybrid,Phillipson 2025
+68,Gabbassov et al.,QA,QUBO,Network Design,UTP,UTP,Hybrid,Phillipson 2025
+69,Giraldo et al.,QA e GBC,QUBO,Network Design,MCLP,MCLP,Hybrid,Phillipson 2025
+70,Guo et al.,QA,QUBO,Network Design,FLP,FLP,Hybrid,Phillipson 2025
+71,Khumalo et al. (b),GBC,QAOA/VQE,Network Design,FLP,FLP,Hybrid,Phillipson 2025
+72,Klar et al.,QA,QUBO,Network Design,FLP,FLP,Hybrid,Phillipson 2025
+73,Mahasinghe et al.,QA,QUBO,Network Design,FLP,FLP,Não especificado,Phillipson 2025
+74,Malviya et al. (a),QA,QUBO,Network Design,NDP,NDP,Hybrid,Phillipson 2025
+75,Malviya et al. (b),GBC,QAOA,Network Design,NDP,NDP,Full Quantum,Phillipson 2025
+76,Radvand et al.,GBC,Grover,Network Design,CSLP,CSLP,Full Quantum,Phillipson 2025
+77,Sakib et al.,QA,QUBO,Network Design,CSLP,CSLP,Hybrid,Phillipson 2025
+78,Satori et al.,QA,QUBO,Network Design,LAP,LAP,Hybrid,Phillipson 2025
+79,Tosum et al.,QA,QUBO,Network Design,QAP,QAP,Não especificado,Phillipson 2025
+80,Wang et al.,GBC,QAOA,Network Design,FLP,FLP,Hybrid,Phillipson 2025
+81,Martins et al.,QA,QUBO,Fleet Optimization,TAP,TAP,Hybrid,Phillipson 2025
+82,Vikstaal et al.,GBC,QAOA,Fleet Optimization,TAP,TAP,Hybrid,Phillipson 2025
+83,Willsch et al.,QA,QUBO,Fleet Optimization,TAP,TAP,Hybrid,Phillipson 2025
+84,De Andoin et al. (a),QA,QUBO,Cargo,BPP,BPP,Hybrid,Phillipson 2025
+85,De Andoin et al. (b),QA,QUBO,Cargo,BPP,BPP,Hybrid,Phillipson 2025
+86,Ardelean et al.,GBC,QML,Cargo,KP,QKP,Hybrid,Phillipson 2025
+87,Benson et al.,QA,CQM,Cargo,KP,KP,Hybrid,Phillipson 2025
+88,Bontekoe et al.,QA,QUBO,Cargo,KP,QKP,Full Quantum,Phillipson 2025
+89,Bozejko et al.,QA,QUBO,Cargo,KP,QKP,Hybrid,Phillipson 2025
+90,Cellini et al. (a),QA,QUBO,Cargo,BPP,BPP,Full Quantum,Phillipson 2025
+91,Cellini et al. (b),QA,QUBO,Cargo,BPP,BPP,Hybrid,Phillipson 2025
+92,Christiansen et al.,GBC,QAOA,Cargo,KP,QKP,Hybrid,Phillipson 2025
+93,Cui et al.,GBC,Grover,Cargo,KP,QKP,Hybrid,Phillipson 2025
+94,Gatti et al.,QA,QUBO,Cargo,BPP,BPP,Hybrid,Phillipson 2025
+95,Matt et al.,GBC,QAOA,Cargo,BPP,BPP,Hybrid,Phillipson 2025
+96,Nayak et al.,QA,QUBO,Cargo,ALO,ALO,Hybrid,Phillipson 2025
+97,Pilon et al.,QA,QUBO,Cargo,ALO,ALO,Full Quantum,Phillipson 2025
+98,Romero et al.,QA,CQM,Cargo,BPP,BPP,Hybrid,Phillipson 2025
+99,Shirai et al.,GBC,VQE,Cargo,KP,QKP,Hybrid,Phillipson 2025
+100,Sotelo et al.,GBC,VQE,Cargo,ALO,ALO,Hybrid,Phillipson 2025
+101,Van Dam et al.,GBC,QAOA,Cargo,KP,KP,Hybrid,Phillipson 2025
+102,Gutta et al.,GBC,QML,Prediction,Forecasting,Forecasting,Hybrid,Phillipson 2025
+103,Jahin et al.,GBC,QML,Prediction,Prediction,Prediction,Hybrid,Phillipson 2025
+104,Jiang et al.,GBC,HHL/VQE,Prediction,Inventory,Inventory,Hybrid,Phillipson 2025
+105,Koushik et al.,GBC,QML,Prediction,Maintenance,Maintenance,Hybrid,Phillipson 2025
+106,Sehrawat et al.,GBC,QML,Prediction,Forecasting,Forecasting,Hybrid,Phillipson 2025
+107,Adelomou et al.,GBC,VQE,Scheduling,Personnel,Personnel,Hybrid,Phillipson 2025
+108,Ajagekar et al. (b),QA,QUBO,Scheduling,JSP,JSP,Hybrid,Phillipson 2025
+109,Ajagekar et al. (c),QA,QUBO,Scheduling,MCFP,MCFP,Hybrid,Phillipson 2025
+110,Amaro et al.,GBC,VQE,Scheduling,JSP,JSP,Hybrid,Phillipson 2025
+111,Bernreuther et al.,GBC,QAOA,Scheduling,Scheduling,Scheduling,Hybrid,Phillipson 2025
+112,Carugno et al.,QA,QUBO,Scheduling,JSP,JSP,Hybrid,Phillipson 2025
+113,Denkena et al.,QA,QUBO,Scheduling,JSP,FJSP,Hybrid,Phillipson 2025
+114,Grange et al.,GBC,QAOA,Scheduling,Scheduling,Scheduling,Hybrid,Phillipson 2025
+115,Huang et al.,QA,QUBO,Scheduling,JSP,JSP,Hybrid,Phillipson 2025
+116,Krol et al.,GBC,Grover,Scheduling,Scheduling,Scheduling,Full Quantum,Phillipson 2025
+117,Kurowski et al.,QA,QUBO,Scheduling,JSP,JSP,Hybrid,Phillipson 2025
+118,Mohammadbagherpoor et al.,QA,VQE,Scheduling,QAP,QAP,Hybrid,Phillipson 2025
+119,Mori et al.,QA e GBC,QAOA,Scheduling,ARP,ARP,Hybrid,Phillipson 2025
+120,Permin et al.,GBC,Grover,Scheduling,JSP,JSP,Hybrid,Phillipson 2025
+121,Riandari et al.,GBC,QAOA,Scheduling,Production opt.,Production opt.,Hybrid,Phillipson 2025
+122,Scherer et al.,GBC,Grover,Scheduling,JSP,JSP,Full Quantum,Phillipson 2025
+123,Streif et al.,GBC,QAOA,Scheduling,JSP,JSP,Hybrid,Phillipson 2025
+124,Schworm et al. (a),QA,QUBO,Scheduling,JSP,JSP,Hybrid,Phillipson 2025
+125,Schworm et al. (b),QA,QUBO,Scheduling,JSP,JSP,Hybrid,Phillipson 2025
+126,Schworm et al. (c),QA,QUBO,Scheduling,JSP,JSP,Hybrid,Phillipson 2025
+127,Venturelli et al.,QA,QUBO,Scheduling,JSP,JSP,Full Quantum,Phillipson 2025
+128,Windmann et al.,GBC,QAOA,Scheduling,JSP,JSP,Hybrid,Phillipson 2025
+129,Yarkoni et al. (b),QA,QUBO,Scheduling,JSP,JSP,Hybrid,Phillipson 2025

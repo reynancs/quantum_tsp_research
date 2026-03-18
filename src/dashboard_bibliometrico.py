@@ -356,11 +356,14 @@ def criar_filtros(df):
 # METRICAS KPI (cartoes com numeros no topo da pagina)
 # ============================================================
 
-def exibir_kpis(df):
-    """Exibe 6 cartoes de metricas KPI no topo da pagina.
+def exibir_kpis(df, df_dedup=None):
+    """Exibe cartoes de metricas KPI no topo da pagina.
 
-    Fonte de dados: data/artigos_unicos.csv (filtrado)
+    Fonte de dados:
+      - data/artigos_unicos.csv (filtrado) → metricas do dataset filtrado
+      - data/resumo_deduplicacao.csv → metricas do processo de deduplicacao
     """
+    # ---- Linha 1: Metricas do dataset filtrado ----
     # st.columns(6) cria 6 colunas lado a lado na pagina.
     # Cada coluna pode receber widgets independentes.
     # Para alterar o numero de KPIs, mude o numero e ajuste as variaveis col.
@@ -381,6 +384,21 @@ def exibir_kpis(df):
     col4.metric("Media Citações", f"{media_cit:.1f}")
     col5.metric("Open Access", f"{oa_pct:.1f}%")
     col6.metric("Paises", f"{paises}")
+
+    # ---- Linha 2: Metricas de deduplicacao ----
+    # Fonte: data/resumo_deduplicacao.csv — estatisticas do processo de limpeza dos dados
+    if df_dedup is not None and not df_dedup.empty:
+        st.divider()
+        st.caption("📊 Estatísticas de Deduplicação")
+        d1, d2, d3, d4, d5, d6 = st.columns(6)
+        row = df_dedup.iloc[0]  # CSV tem apenas 1 linha de dados
+
+        d1.metric("Total Bruto", f"{int(row['total_bruto']):,}")
+        d2.metric("Total Único", f"{int(row['total_unico']):,}")
+        d3.metric("Removidos", f"{int(row['total_removido']):,}")
+        d4.metric("Removidos (DOI)", f"{int(row['removidos_por_doi']):,}")
+        d5.metric("Removidos (Título)", f"{int(row['removidos_por_titulo']):,}")
+        d6.metric("Sobreposição", f"{row['taxa_sobreposicao_pct']:.1f}%")
 
 
 # ============================================================
@@ -986,51 +1004,94 @@ def aba_strings(df):
 # Graficos: pizza (paradigma, abordagem), barras (timeline, hardware, variantes,
 #           escala, criterios, formulacao, metricas), heatmap, radar, tabela
 
+# Paleta de cores para paradigmas quanticos (aba Algoritmos)
 PALETTE_PARADIGMA = {
-    "Quantum Annealing": "#0077B6",
-    "Gate-Based Variacional": "#00B4D8",
-    "Gate-Based Exato": "#48CAE4",
-    "QA e Gate-Based": "#023E8A",
-    "QML": "#70AD47",
-    "QML / Hibrido": "#90E0EF",
-    "Revisao": "#A5A5A5",
+    "QA": "#0077B6",           # Quantum Annealing — azul escuro
+    "GBC": "#00B4D8",          # Gate-Based Computing — azul claro
+    "QA e GBC": "#023E8A",     # Hibrido QA + GBC — azul marinho
+    "CA": "#48CAE4",           # Computacao Adiabatica — ciano
+    "QRNG": "#70AD47",         # Quantum Random Number Gen — verde
+    "Generic": "#A5A5A5",      # Generico — cinza
+    "QML": "#9B59B6",          # Quantum Machine Learning — roxo
 }
 
+# Paleta de cores para abordagens (full quantum vs hybrid)
 PALETTE_ABORDAGEM = {
-    "Hibrida": "#0077B6",
-    "Quantica": "#00B4D8",
-    "Full e Hibrida": "#48CAE4",
-    "Revisao": "#A5A5A5",
-    "Variavel": "#FFC000",
+    "Hybrid": "#0077B6",           # Hibrida — azul
+    "Full Quantum": "#00B4D8",     # Puramente quantica — ciano
+    "Full e Hybrid": "#48CAE4",    # Ambas — azul claro
+    "Não especificado": "#A5A5A5", # Nao informado — cinza
+}
+
+# Paleta de cores para topicos (Routing, Scheduling, etc.)
+PALETTE_TOPICO = {
+    "Routing": "#0077B6",
+    "Network Design": "#ED7D31",
+    "Scheduling": "#9B59B6",
+    "Cargo": "#70AD47",
+    "Fleet Optimization": "#48CAE4",
+    "Prediction": "#FFC000",
 }
 
 
 @st.cache_data
 def carregar_algoritmos():
-    """Carrega a base compilada de algoritmos e abordagens."""
+    """Carrega a base compilada de algoritmos e abordagens.
+
+    Fonte: data/base_algoritmos_abordagens.csv (129 trabalhos)
+    Colunas: id, autores, paradigma, algoritmo_quantico, topico,
+             problema, abordagem, ano, hardware, num_cidades, formulacao,
+             contribuicao, escala_testada, qualidade_solucao, tempo_execucao,
+             taxa_sucesso, sensibilidade_parametros, robustez_ruido,
+             metricas_avaliadas, fonte
+    """
     caminho = os.path.join(PASTA_PROJETO, "data", "base_algoritmos_abordagens.csv")
     df = pd.read_csv(caminho, dtype=str)
-    df["ano"] = pd.to_numeric(df["ano"], errors="coerce")
     df["id"] = pd.to_numeric(df["id"], errors="coerce").astype(int)
+    # Converter ano para numerico (artigos sem ano ficam como NaN)
+    df["ano"] = pd.to_numeric(df["ano"], errors="coerce")
+    # Converter ranking para numerico (coluna de pontuação ponderada 0-10)
+    if "ranking" in df.columns:
+        df["ranking"] = pd.to_numeric(df["ranking"], errors="coerce").fillna(0.0)
     return df
 
 
 def aba_algoritmos():
-    """Aba de exploracao de algoritmos e abordagens do artigo de referencia."""
+    """Aba de exploracao de algoritmos e abordagens do artigo de referencia.
+
+    # ABA 7 — ALGORITMOS E ABORDAGENS
+    # Fonte de dados: data/base_algoritmos_abordagens.csv (129 trabalhos catalogados)
+    #   → Extraido das 3 tabelas do artigo Phillipson (2025), paginas 50-52
+    #   → Colunas: id, autores, paradigma, algoritmo_quantico, topico,
+    #              problema, abordagem, ano, hardware, formulacao, etc.
+    #   → Esta aba usa uma fonte de dados DIFERENTE das demais abas.
+    #   → Possui seus PROPRIOS filtros (paradigma, algoritmo, topico, problema, abordagem, criterios).
+    #   → Os filtros da sidebar NÃO afetam esta aba.
+    """
+
+    # Mapeamento de códigos de critérios para suas descrições completas.
+    # Usado no filtro multiselect para exibir a descrição ao invés do código (C1, C2...).
+    CRITERIOS_DESCRICAO = {
+        "C1": "C1 — Qualidade da solução",
+        "C2": "C2 — Escalabilidade",
+        "C3": "C3 — Aplicação real",
+        "C4": "C4 — Comparação com clássico",
+        "C5": "C5 — Análise de limitações",
+        "C6": "C6 — Taxa de sucesso",
+    }
+    # Mapeamento inverso: descrição → código (para aplicar filtro no DataFrame)
+    DESCRICAO_CRITERIOS = {v: k for k, v in CRITERIOS_DESCRICAO.items()}
 
     df_algo = carregar_algoritmos()
 
     # --- Filtros especificos desta aba ---
-    # Diferente das abas 1-6, esta aba tem seus PROPRIOS filtros (nao usa a sidebar).
     # st.markdown("##### ...") renderiza como titulo h5 (pequeno).
     st.markdown("##### Filtros de Algoritmos")
-    # st.columns(4): cria 4 colunas para alinhar os filtros lado a lado.
-    fc1, fc2, fc3, fc4 = st.columns(4)
+    # Primeira linha de filtros: paradigma, algoritmo, topico
+    fc1, fc2, fc3 = st.columns(3)
 
     # Cada filtro usa st.multiselect() com key= unico.
-    # O parametro key= e OBRIGATORIO quando ha multiplos widgets do mesmo tipo no dashboard,
-    # pois o Streamlit usa a key para identificar o estado de cada widget.
-    # Se duas multiselects nao tiverem key= diferente, o Streamlit confunde os valores.
+    # O parametro key= e OBRIGATORIO quando ha multiplos widgets do mesmo tipo no dashboard.
     with fc1:
         paradigmas = sorted(df_algo["paradigma"].dropna().unique())
         paradigma_sel = st.multiselect(
@@ -1042,6 +1103,39 @@ def aba_algoritmos():
         )
 
     with fc2:
+        algoritmos = sorted(df_algo["algoritmo_quantico"].dropna().unique())
+        algoritmo_sel = st.multiselect(
+            "Algoritmo Quântico",
+            options=algoritmos,
+            default=None,
+            placeholder="Todos",
+            key="algo_algoritmo",
+        )
+
+    with fc3:
+        topicos = sorted(df_algo["topico"].dropna().unique())
+        topico_sel = st.multiselect(
+            "Tópico",
+            options=topicos,
+            default=None,
+            placeholder="Todos",
+            key="algo_topico",
+        )
+
+    # Segunda linha de filtros: problema, abordagem, critérios de seleção
+    fc4, fc5, fc6 = st.columns(3)
+
+    with fc4:
+        problemas = sorted(df_algo["problema"].dropna().unique())
+        problema_sel = st.multiselect(
+            "Problema",
+            options=problemas,
+            default=None,
+            placeholder="Todos",
+            key="algo_problema",
+        )
+
+    with fc5:
         abordagens = sorted(df_algo["abordagem"].dropna().unique())
         abordagem_sel = st.multiselect(
             "Abordagem",
@@ -1051,64 +1145,52 @@ def aba_algoritmos():
             key="algo_abordagem",
         )
 
-    with fc3:
-        areas = sorted(df_algo["area_aplicacao"].dropna().unique())
-        area_sel = st.multiselect(
-            "Area de Aplicação",
-            options=areas,
+    with fc6:
+        # Filtro de critérios de seleção — exibe a descrição completa (ex: "C1 — Qualidade da solução")
+        # ao invés do código curto (C1). O filtro verifica se o critério selecionado
+        # aparece na coluna "criterios" do CSV (que pode conter múltiplos valores: "C1, C3").
+        criterio_opcoes = list(CRITERIOS_DESCRICAO.values())
+        criterio_sel = st.multiselect(
+            "Critério de Seleção",
+            options=criterio_opcoes,
             default=None,
-            placeholder="Todas",
-            key="algo_area",
-        )
-
-    with fc4:
-        variantes = sorted(df_algo["variante_tsp"].dropna().unique())
-        variante_sel = st.multiselect(
-            "Variante do Problema",
-            options=variantes,
-            default=None,
-            placeholder="Todas",
-            key="algo_variante",
+            placeholder="Todos",
+            key="algo_criterio",
         )
 
     # Aplicar filtros — mesma logica de mascara booleana usada em criar_filtros().
-    # Se nenhuma opcao for selecionada, a lista fica vazia e o filtro nao e aplicado.
     mask = pd.Series(True, index=df_algo.index)
     if paradigma_sel:
         mask &= df_algo["paradigma"].isin(paradigma_sel)
+    if algoritmo_sel:
+        mask &= df_algo["algoritmo_quantico"].isin(algoritmo_sel)
+    if topico_sel:
+        mask &= df_algo["topico"].isin(topico_sel)
+    if problema_sel:
+        mask &= df_algo["problema"].isin(problema_sel)
     if abordagem_sel:
         mask &= df_algo["abordagem"].isin(abordagem_sel)
-    if area_sel:
-        mask &= df_algo["area_aplicacao"].isin(area_sel)
-    if variante_sel:
-        mask &= df_algo["variante_tsp"].isin(variante_sel)
+    if criterio_sel:
+        # Converter descrições selecionadas de volta para códigos (C1, C2...)
+        codigos_sel = [DESCRICAO_CRITERIOS[d] for d in criterio_sel]
+        # Filtrar linhas que contenham QUALQUER um dos critérios selecionados
+        # A coluna "criterios" pode ter valores como "C1, C3", então usamos str.contains
+        criterio_mask = pd.Series(False, index=df_algo.index)
+        for codigo in codigos_sel:
+            criterio_mask |= df_algo["criterios"].str.contains(codigo, na=False)
+        mask &= criterio_mask
     df_f = df_algo[mask].copy()
-
-    # df_trabalhos: exclui linhas de taxonomia (plataformas genericas).
-    # df_todos: inclui tudo (para contagens gerais como "algoritmos distintos").
-    df_trabalhos = df_f[~df_f["fonte"].isin(["Taxonomia"])].copy()
-    df_todos = df_f.copy()
 
     st.divider()
 
     # --- KPIs ---
-    k1, k2, k3, k4, k5 = st.columns(5)
-    k1.metric("Trabalhos", len(df_trabalhos))
-    k2.metric("Algoritmos Distintos", df_todos["algoritmo"].nunique())
-    k3.metric("Paradigmas", df_todos["paradigma"].nunique())
-
-    # Contar criterios
-    todos_criterios = []
-    for c in df_todos["criterios"].dropna():
-        for item in str(c).split(","):
-            item = item.strip()
-            if item:
-                todos_criterios.append(item)
-    k4.metric("Avaliações por Critério", len(todos_criterios))
-
-    hardwares = df_todos["hardware"].dropna()
-    hardwares = hardwares[~hardwares.isin(["Revisao", "Nao especificado", "Simulador"])]
-    k5.metric("Plataformas HW", hardwares.nunique())
+    k1, k2, k3, k4, k5, k6 = st.columns(6)
+    k1.metric("Trabalhos", len(df_f))
+    k2.metric("Paradigmas", df_f["paradigma"].nunique())
+    k3.metric("Algoritmos", df_f["algoritmo_quantico"].nunique())
+    k4.metric("Tópicos", df_f["topico"].nunique())
+    k5.metric("Problemas", df_f["problema"].nunique())
+    k6.metric("Abordagens", df_f["abordagem"].nunique())
 
     st.divider()
 
@@ -1119,7 +1201,7 @@ def aba_algoritmos():
 
     with col1:
         st.subheader("Distribuição por Paradigma Quântico")
-        contagem_p = df_trabalhos["paradigma"].value_counts().reset_index()
+        contagem_p = df_f["paradigma"].value_counts().reset_index()
         contagem_p.columns = ["Paradigma", "Trabalhos"]
 
         fig_p = px.pie(
@@ -1129,11 +1211,11 @@ def aba_algoritmos():
         )
         fig_p.update_traces(textposition="inside", textinfo="percent+label+value")
         fig_p.update_layout(height=400, showlegend=False)
-        st.plotly_chart(fig_p, width="stretch")
+        st.plotly_chart(fig_p, use_container_width=True)
 
     with col2:
         st.subheader("Distribuição por Abordagem")
-        contagem_a = df_trabalhos["abordagem"].value_counts().reset_index()
+        contagem_a = df_f["abordagem"].value_counts().reset_index()
         contagem_a.columns = ["Abordagem", "Trabalhos"]
 
         fig_a = px.pie(
@@ -1143,272 +1225,215 @@ def aba_algoritmos():
         )
         fig_a.update_traces(textposition="inside", textinfo="percent+label+value")
         fig_a.update_layout(height=400, showlegend=False)
-        st.plotly_chart(fig_a, width="stretch")
+        st.plotly_chart(fig_a, use_container_width=True)
 
     # ===============================
-    # LINHA 2: Timeline + Hardware
+    # LINHA 2: Tópico + Algoritmo Quântico
     # ===============================
     col3, col4 = st.columns(2)
 
     with col3:
-        st.subheader("Evolução Temporal dos Trabalhos")
-        df_timeline = df_trabalhos.dropna(subset=["ano"]).copy()
-        df_timeline["Ano"] = df_timeline["ano"].astype(int)
-        contagem_t = df_timeline.groupby(["Ano", "paradigma"]).size().reset_index(name="Trabalhos")
+        st.subheader("Distribuição por Tópico")
+        contagem_t = df_f["topico"].value_counts().reset_index()
+        contagem_t.columns = ["Tópico", "Trabalhos"]
 
         fig_t = px.bar(
-            contagem_t, x="Ano", y="Trabalhos", color="paradigma",
-            color_discrete_map=PALETTE_PARADIGMA,
-            labels={"paradigma": "Paradigma"},
+            contagem_t, x="Trabalhos", y="Tópico",
+            orientation="h",
+            color="Tópico", color_discrete_map=PALETTE_TOPICO,
+            text="Trabalhos",
         )
         fig_t.update_layout(
-            barmode="stack", height=400, plot_bgcolor="white",
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+            height=400, plot_bgcolor="white",
+            yaxis=dict(autorange="reversed"),
+            showlegend=False,
         )
-        fig_t.update_xaxes(dtick=1)
-        st.plotly_chart(fig_t, width="stretch")
+        fig_t.update_traces(textposition="outside")
+        st.plotly_chart(fig_t, use_container_width=True)
 
     with col4:
-        st.subheader("Plataformas de Hardware / Simulador")
-        contagem_hw = df_trabalhos["hardware"].fillna("Nao especificado").value_counts().reset_index()
-        contagem_hw.columns = ["Hardware", "Trabalhos"]
+        st.subheader("Algoritmos Quânticos Mais Frequentes")
+        contagem_alg = df_f["algoritmo_quantico"].value_counts().reset_index()
+        contagem_alg.columns = ["Algoritmo", "Trabalhos"]
 
-        fig_hw = px.bar(
-            contagem_hw, x="Trabalhos", y="Hardware",
+        fig_alg = px.bar(
+            contagem_alg, x="Trabalhos", y="Algoritmo",
             orientation="h",
-            color_discrete_sequence=[CORES["secondary"]],
+            color_discrete_sequence=[CORES["primary"]],
         )
-        fig_hw.update_layout(
+        fig_alg.update_layout(
             height=400, plot_bgcolor="white",
             yaxis=dict(autorange="reversed"),
         )
-        fig_hw.update_traces(text=contagem_hw["Trabalhos"], textposition="outside")
-        st.plotly_chart(fig_hw, width="stretch")
+        fig_alg.update_traces(text=contagem_alg["Trabalhos"], textposition="outside")
+        st.plotly_chart(fig_alg, use_container_width=True)
 
     # ===============================
-    # LINHA 3: Variantes + Escala
+    # LINHA 3: Problemas (Top 15) + Paradigma por Tópico (Stacked Bar)
     # ===============================
     col5, col6 = st.columns(2)
 
     with col5:
-        st.subheader("Variantes do Problema Abordadas")
-        contagem_v = df_trabalhos["variante_tsp"].value_counts().reset_index()
-        contagem_v.columns = ["Variante", "Trabalhos"]
+        st.subheader("Problemas Mais Frequentes (Top 15)")
+        contagem_sub = df_f["problema"].value_counts().head(15).reset_index()
+        contagem_sub.columns = ["Problema", "Trabalhos"]
 
-        fig_v = px.bar(
-            contagem_v, x="Trabalhos", y="Variante",
-            orientation="h",
-            color_discrete_sequence=[CORES["primary"]],
-        )
-        fig_v.update_layout(
-            height=400, plot_bgcolor="white",
-            yaxis=dict(autorange="reversed"),
-        )
-        fig_v.update_traces(text=contagem_v["Trabalhos"], textposition="outside")
-        st.plotly_chart(fig_v, width="stretch")
-
-    with col6:
-        st.subheader("Escala Testada (N. de Cidades)")
-        contagem_e = df_trabalhos["escala_testada"].fillna("Nao informada").value_counts().reset_index()
-        contagem_e.columns = ["Escala", "Trabalhos"]
-
-        fig_e = px.bar(
-            contagem_e, x="Trabalhos", y="Escala",
+        fig_sub = px.bar(
+            contagem_sub, x="Trabalhos", y="Problema",
             orientation="h",
             color_discrete_sequence=[CORES["accent"]],
         )
-        fig_e.update_layout(
-            height=400, plot_bgcolor="white",
+        fig_sub.update_layout(
+            height=450, plot_bgcolor="white",
             yaxis=dict(autorange="reversed"),
         )
-        fig_e.update_traces(text=contagem_e["Trabalhos"], textposition="outside")
-        st.plotly_chart(fig_e, width="stretch")
+        fig_sub.update_traces(text=contagem_sub["Trabalhos"], textposition="outside")
+        st.plotly_chart(fig_sub, use_container_width=True)
 
-    # ===============================
-    # LINHA 4: Critérios de Seleção
-    # ===============================
-    st.subheader("Critérios de Seleção por Trabalho")
-    st.caption(
-        "C1: Híbrida superior ao clássico | "
-        "C2: Melhor meta-heurística quântico-clássica | "
-        "C3: Formulações avançadas / cenários realistas | "
-        "C4: Limitações de hardware (ruído e decoerência) | "
-        "C5: Sensibilidade a parâmetros e QUBO"
-    )
+    with col6:
+        st.subheader("Paradigma por Tópico")
+        contagem_pt = df_f.groupby(["topico", "paradigma"]).size().reset_index(name="Trabalhos")
 
-    # Contagem de criterios
-    criterio_list = []
-    for _, row in df_trabalhos.iterrows():
-        if pd.notna(row["criterios"]) and str(row["criterios"]).strip():
-            for c in str(row["criterios"]).split(","):
-                c = c.strip()
-                if c:
-                    criterio_list.append({"Criterio": c, "Autor": row["autores"], "Paradigma": row["paradigma"]})
-
-    col7, col8 = st.columns(2)
-
-    with col7:
-        if criterio_list:
-            df_crit = pd.DataFrame(criterio_list)
-            contagem_c = df_crit["Criterio"].value_counts().reset_index()
-            contagem_c.columns = ["Criterio", "Trabalhos"]
-
-            nomes_criterio = {
-                "C1": "C1 — Hibrida > Classico",
-                "C2": "C2 — Melhor Meta-heuristica",
-                "C3": "C3 — Cenarios Realistas",
-                "C4": "C4 — Limitacoes HW",
-                "C5": "C5 — Sensib. Parametros",
-            }
-            contagem_c["Label"] = contagem_c["Criterio"].map(nomes_criterio).fillna(contagem_c["Criterio"])
-
-            fig_c = px.bar(
-                contagem_c, x="Trabalhos", y="Label",
-                orientation="h",
-                color_discrete_sequence=[CORES["warning"]],
-            )
-            fig_c.update_layout(
-                height=350, plot_bgcolor="white",
-                yaxis=dict(autorange="reversed", title=""),
-            )
-            fig_c.update_traces(text=contagem_c["Trabalhos"], textposition="outside")
-            st.plotly_chart(fig_c, width="stretch")
-        else:
-            st.info("Nenhum trabalho com critério de seleção atribuído nos filtros atuais.")
-
-    with col8:
-        # Heatmap criterio x paradigma
-        if criterio_list:
-            df_crit_heat = pd.DataFrame(criterio_list)
-            heat = df_crit_heat.groupby(["Criterio", "Paradigma"]).size().reset_index(name="Qtd")
-            heat_pivot = heat.pivot_table(index="Paradigma", columns="Criterio", values="Qtd", fill_value=0)
-
-            fig_ch = go.Figure(data=go.Heatmap(
-                z=heat_pivot.values,
-                x=heat_pivot.columns.tolist(),
-                y=heat_pivot.index.tolist(),
-                colorscale=[[0, "#FFFFFF"], [0.3, "#CAF0F8"], [0.6, "#48CAE4"], [1, "#03045E"]],
-                text=heat_pivot.values,
-                texttemplate="%{text}",
-            ))
-            fig_ch.update_layout(height=350, title="Critérios × Paradigma")
-            st.plotly_chart(fig_ch, width="stretch")
-
-    # ===============================
-    # LINHA 5: Formulação QUBO + Métricas
-    # ===============================
-    col9, col10 = st.columns(2)
-
-    with col9:
-        st.subheader("Formulação Utilizada")
-        contagem_form = df_trabalhos["formulacao"].fillna("Nao informada").value_counts().reset_index()
-        contagem_form.columns = ["Formulacao", "Trabalhos"]
-
-        fig_form = px.bar(
-            contagem_form, x="Trabalhos", y="Formulacao",
+        fig_pt = px.bar(
+            contagem_pt, x="Trabalhos", y="topico",
             orientation="h",
-            color_discrete_sequence=[CORES["dark"]],
+            color="paradigma",
+            color_discrete_map=PALETTE_PARADIGMA,
+            labels={"topico": "Tópico", "paradigma": "Paradigma"},
         )
-        fig_form.update_layout(
-            height=400, plot_bgcolor="white",
+        fig_pt.update_layout(
+            barmode="stack", height=450, plot_bgcolor="white",
             yaxis=dict(autorange="reversed"),
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         )
-        fig_form.update_traces(text=contagem_form["Trabalhos"], textposition="outside")
-        st.plotly_chart(fig_form, width="stretch")
-
-    with col10:
-        st.subheader("Métricas de Avaliação Utilizadas")
-        todas_metricas = []
-        for m in df_trabalhos["metricas_avaliadas"].dropna():
-            for item in str(m).split(","):
-                item = item.strip()
-                if item:
-                    todas_metricas.append(item)
-
-        if todas_metricas:
-            contagem_m = pd.Series(todas_metricas).value_counts().head(15).reset_index()
-            contagem_m.columns = ["Metrica", "Frequencia"]
-
-            fig_m = px.bar(
-                contagem_m, x="Frequencia", y="Metrica",
-                orientation="h",
-                color_discrete_sequence=[CORES["success"]],
-            )
-            fig_m.update_layout(
-                height=400, plot_bgcolor="white",
-                yaxis=dict(autorange="reversed"),
-            )
-            fig_m.update_traces(text=contagem_m["Frequencia"], textposition="outside")
-            st.plotly_chart(fig_m, width="stretch")
+        st.plotly_chart(fig_pt, use_container_width=True)
 
     # ===============================
-    # LINHA 6: Radar de maturidade
+    # LINHA 4: Heatmap Tópico × Algoritmo
     # ===============================
-    st.subheader("Radar de Maturidade por Paradigma")
-    st.caption("Avaliação qualitativa baseada na análise dos trabalhos catalogados")
+    st.subheader("Heatmap: Tópico × Algoritmo Quântico")
+    st.caption("Intensidade indica o número de trabalhos que combinam cada tópico com cada algoritmo")
 
-    # Calcular metricas de maturidade por paradigma (avaliacao qualitativa 0-5)
-    # Cada paradigma e avaliado em 5 dimensoes, resultando num grafico radar.
-    # Para ajustar a avaliacao, altere as formulas de normalizacao abaixo.
-    paradigmas_radar = df_trabalhos[~df_trabalhos["paradigma"].isin(["Revisao"])]["paradigma"].unique()
-    radar_data = []
+    heat_data = df_f.groupby(["topico", "algoritmo_quantico"]).size().reset_index(name="Qtd")
+    heat_pivot = heat_data.pivot_table(
+        index="topico", columns="algoritmo_quantico", values="Qtd", fill_value=0
+    )
+    # Ordenar por total decrescente
+    heat_pivot = heat_pivot.loc[heat_pivot.sum(axis=1).sort_values(ascending=False).index]
 
-    for par in paradigmas_radar:
-        df_par = df_trabalhos[df_trabalhos["paradigma"] == par]
-        n = len(df_par)
-        if n == 0:
-            continue
+    fig_heat = go.Figure(data=go.Heatmap(
+        z=heat_pivot.values,
+        x=heat_pivot.columns.tolist(),
+        y=heat_pivot.index.tolist(),
+        colorscale=[[0, "#FFFFFF"], [0.2, "#CAF0F8"], [0.5, "#48CAE4"], [1, "#03045E"]],
+        text=heat_pivot.values,
+        texttemplate="%{text}",
+    ))
+    fig_heat.update_layout(height=400, xaxis_title="Algoritmo Quântico", yaxis_title="Tópico")
+    st.plotly_chart(fig_heat, use_container_width=True)
 
-        # Dimensoes de maturidade (escala 0-5, normalizada com min() para nao ultrapassar 5)
-        vol = min(n / 3, 5)                                             # Volume: 15+ trabalhos = score 5
-        var = min(df_par["variante_tsp"].nunique() / 2, 5)              # Variedade: 10+ variantes = 5
-        hw_real = df_par["hardware"].fillna("").str.contains("D-Wave|IBM Quantum|Amazon", case=False).sum()
-        hw_score = min(hw_real / max(n * 0.3, 1) * 5, 5)               # Hardware real: proporcao de uso
-        c3 = df_par["criterios"].fillna("").str.contains("C3").sum()
-        c3_score = min(c3 / max(n * 0.2, 1) * 5, 5)                    # Cenarios realistas (criterio C3)
-        escala_media = df_par["escala_testada"].fillna("").str.contains("Media|Variavel").sum()
-        escala_score = min(escala_media / max(n * 0.3, 1) * 5, 5)      # Escalabilidade: instancias maiores
+    # ===============================
+    # LINHA 5: Treemap hierárquico
+    # ===============================
+    st.subheader("Treemap: Tópico → Problema → Paradigma")
+    st.caption("Visualização hierárquica da distribuição dos trabalhos")
 
-        radar_data.append({
-            "Paradigma": par,
-            "Volume": round(vol, 1),
-            "Variedade": round(var, 1),
-            "Hardware Real": round(hw_score, 1),
-            "Cenários Reais": round(c3_score, 1),
-            "Escalabilidade": round(escala_score, 1),
-        })
+    df_tree = df_f[["topico", "problema", "paradigma"]].copy()
+    df_tree["count"] = 1
 
-    if radar_data:
-        dims = ["Volume", "Variedade", "Hardware Real", "Cenários Reais", "Escalabilidade"]
+    fig_tree = px.treemap(
+        df_tree,
+        path=["topico", "problema", "paradigma"],
+        values="count",
+        color="topico",
+        color_discrete_map=PALETTE_TOPICO,
+    )
+    fig_tree.update_layout(height=500)
+    fig_tree.update_traces(textinfo="label+value")
+    st.plotly_chart(fig_tree, use_container_width=True)
 
-        # go.Scatterpolar(): grafico de radar (spider chart).
-        #   r: valores radiais (distancia do centro) — aqui, scores 0-5
-        #   theta: nomes dos eixos radiais
-        #   fill="toself": preenche a area do poligono formado pelos pontos
-        # IMPORTANTE: o ultimo valor de r/theta repete o primeiro para FECHAR o poligono.
-        fig_radar = go.Figure()
-        cores_radar = list(PALETTE_PARADIGMA.values())
+    # ===============================
+    # LINHA 6: Radar de critérios por autor
+    # ===============================
+    # Exibe um radar (spider chart) com os 6 critérios de seleção (C1-C6) por autor.
+    # Cada eixo mostra o peso do critério se atendido, ou 0 caso contrário.
+    # O usuário pode selecionar quais autores comparar via multiselect.
+    st.subheader("Radar de Critérios por Autor")
+    st.caption("Pontuação dos critérios de seleção aplicados por autor (peso do critério se atendido)")
 
-        for i, row in enumerate(radar_data):
-            values = [row[d] for d in dims]
-            values.append(values[0])  # fechar o poligono (volta ao primeiro ponto)
+    # Labels curtos para os 6 eixos do radar
+    CRITERIOS_RADAR = {
+        "C1": "Qualidade da Solução",
+        "C2": "Escalabilidade",
+        "C3": "Aplicação Real",
+        "C4": "Comparação c/ Clássico",
+        "C5": "Análise de Limitações",
+        "C6": "Taxa de Sucesso",
+    }
+    # Pesos de cada critério na escala do radar (proporcionais aos pesos reais × 10)
+    PESOS_RADAR = {"C1": 20, "C2": 15, "C3": 20, "C4": 15, "C5": 10, "C6": 20}
+    codigos = list(CRITERIOS_RADAR.keys())
+    labels_radar = list(CRITERIOS_RADAR.values())
 
-            fig_radar.add_trace(go.Scatterpolar(
-                r=values,
-                theta=dims + [dims[0]],
-                fill="toself",
-                name=row["Paradigma"],
-                line_color=cores_radar[i % len(cores_radar)],
-                opacity=0.6,
-            ))
+    # Listar todos os autores ordenados: primeiro os que têm ranking > 0 (decrescente),
+    # depois os demais em ordem alfabética.
+    if "ranking" in df_f.columns:
+        df_com_rank = df_f[df_f["ranking"] > 0].sort_values("ranking", ascending=False)
+        df_sem_rank = df_f[df_f["ranking"] == 0].sort_values("autores")
+        autores_com_rank = df_com_rank["autores"].unique().tolist()
+        autores_sem_rank = df_sem_rank["autores"].unique().tolist()
+        todos_autores = autores_com_rank + [a for a in autores_sem_rank if a not in autores_com_rank]
+    else:
+        todos_autores = sorted(df_f["autores"].unique().tolist())
+        autores_com_rank = []
 
-        # polar.radialaxis.range: define a escala fixa do radar (0 a 5).
-        fig_radar.update_layout(
-            polar=dict(radialaxis=dict(visible=True, range=[0, 5])),
-            height=500,
-            legend=dict(orientation="h", yanchor="bottom", y=-0.2),
+    # Default: top 5 autores com maior ranking (se houver)
+    default_autores = autores_com_rank[:5] if autores_com_rank else todos_autores[:5]
+
+    if todos_autores:
+        autores_sel_radar = st.multiselect(
+            "Selecione autores para comparar",
+            options=todos_autores,
+            default=default_autores,
+            key="radar_autores_sel",
         )
-        st.plotly_chart(fig_radar, width="stretch")
+
+        if autores_sel_radar:
+            fig_radar = go.Figure()
+            cores_radar = px.colors.qualitative.Set2
+
+            for i, autor in enumerate(autores_sel_radar):
+                row_autor = df_f[df_f["autores"] == autor].iloc[0]
+                criterios_str = row_autor["criterios"] if pd.notna(row_autor["criterios"]) else ""
+                # Ignorar "Nao Reportada" como critério
+                if criterios_str.strip().lower() == "nao reportada":
+                    criterios_presentes = set()
+                else:
+                    criterios_presentes = {c.strip() for c in criterios_str.split(",")}
+
+                values = []
+                for cod in codigos:
+                    values.append(PESOS_RADAR[cod] if cod in criterios_presentes else 0)
+                values.append(values[0])  # fechar polígono
+
+                ranking_val = int(row_autor["ranking"]) if "ranking" in row_autor.index and pd.notna(row_autor["ranking"]) else 0
+                fig_radar.add_trace(go.Scatterpolar(
+                    r=values,
+                    theta=labels_radar + [labels_radar[0]],
+                    fill="toself",
+                    name=f"{autor} (R:{ranking_val})",
+                    line_color=cores_radar[i % len(cores_radar)],
+                    opacity=0.6,
+                ))
+
+            fig_radar.update_layout(
+                polar=dict(radialaxis=dict(visible=True, range=[0, 20])),
+                height=500,
+                legend=dict(orientation="h", yanchor="bottom", y=-0.2),
+            )
+            st.plotly_chart(fig_radar, use_container_width=True)
+    else:
+        st.info("Nenhum autor disponível nos dados filtrados.")
 
     # ===============================
     # LINHA 7: Tabela completa
@@ -1416,35 +1441,51 @@ def aba_algoritmos():
     st.subheader("Tabela Detalhada dos Trabalhos")
 
     colunas_exibir = [
-        "autores", "ano", "problema", "variante_tsp", "algoritmo",
-        "paradigma", "hardware", "abordagem", "escala_testada",
-        "qualidade_solucao", "criterios", "contribuicao",
+        "autores", "ano", "paradigma", "algoritmo_quantico", "topico",
+        "problema", "abordagem", "hardware", "num_cidades",
+        "formulacao", "contribuicao", "escala_testada", "qualidade_solucao",
+        "tempo_execucao", "taxa_sucesso", "sensibilidade_parametros",
+        "robustez_ruido", "metricas_avaliadas", "criterios", "ranking",
     ]
+    # Filtrar apenas colunas que existem no DataFrame carregado
+    colunas_exibir = [c for c in colunas_exibir if c in df_f.columns]
     colunas_nomes = {
         "autores": "Autores",
         "ano": "Ano",
-        "problema": "Problema",
-        "variante_tsp": "Variante",
-        "algoritmo": "Algoritmo",
         "paradigma": "Paradigma",
-        "hardware": "Hardware",
+        "algoritmo_quantico": "Algoritmo Quântico",
+        "topico": "Tópico",
+        "problema": "Problema",
         "abordagem": "Abordagem",
+        "hardware": "Hardware",
+        "num_cidades": "Nº Cidades",
+        "formulacao": "Formulação",
+        "contribuicao": "Contribuição",
         "escala_testada": "Escala",
         "qualidade_solucao": "Qualidade",
+        "tempo_execucao": "Tempo Execução",
+        "taxa_sucesso": "Taxa Sucesso",
+        "sensibilidade_parametros": "Sensib. Parâmetros",
+        "robustez_ruido": "Robustez Ruído",
+        "metricas_avaliadas": "Métricas Avaliadas",
         "criterios": "Critérios",
-        "contribuicao": "Contribuição",
+        "ranking": "Score Geral",
     }
 
-    df_tabela = df_todos[colunas_exibir].copy()
+    # Ordenar por ranking decrescente (melhores no topo)
+    df_tabela = df_f[colunas_exibir].copy()
+    df_tabela = df_tabela.sort_values("ranking", ascending=False) if "ranking" in df_tabela.columns else df_tabela
     df_tabela = df_tabela.rename(columns=colunas_nomes)
-    df_tabela["Ano"] = df_tabela["Ano"].apply(
-        lambda x: str(int(x)) if pd.notna(x) and x != 0 else ""
-    )
+    # Formatar ano como inteiro (sem decimal) onde disponível
+    if "Ano" in df_tabela.columns:
+        df_tabela["Ano"] = df_tabela["Ano"].apply(
+            lambda x: str(int(x)) if pd.notna(x) and x != 0 else "N/D"
+        )
 
     st.dataframe(
         df_tabela.reset_index(drop=True),
         height=500,
-        width="stretch",
+        use_container_width=True,
     )
 
 
@@ -1466,11 +1507,18 @@ def main():
     # 1. Carregar dados do CSV (cacheado — so le do disco na primeira vez)
     df = carregar_dados()
 
+    # 1b. Carregar estatisticas de deduplicacao (CSV com 1 linha de metricas)
+    #     Fonte: data/resumo_deduplicacao.csv — gerado apos processo de limpeza
+    try:
+        df_dedup = pd.read_csv("data/resumo_deduplicacao.csv")
+    except FileNotFoundError:
+        df_dedup = None
+
     # 2. Montar filtros na sidebar e obter DataFrame filtrado
     df_filtrado = criar_filtros(df)
 
-    # 3. Exibir KPIs no topo (metricas resumidas)
-    exibir_kpis(df_filtrado)
+    # 3. Exibir KPIs no topo (metricas resumidas + metricas de deduplicacao)
+    exibir_kpis(df_filtrado, df_dedup)
 
     st.divider()
 
