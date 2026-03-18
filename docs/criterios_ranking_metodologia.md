@@ -11,6 +11,38 @@ a problemas de otimização em logística.
 O resultado é uma **pontuação normalizada de 0 a 100** na coluna `ranking`,
 que permite ordenar e comparar trabalhos de forma objetiva.
 
+### 1.1 Origem dos Dados e Processo de Avaliação
+
+Os dados utilizados para a avaliação dos trabalhos foram extraídos exclusivamente do
+artigo de referência **Phillipson (2025)** — *"Quantum Computing in Logistics and Supply
+Chain Management: an Overview"* — que cataloga mais de 130 abordagens quânticas
+aplicadas a problemas de logística e cadeia de suprimentos. **Os trabalhos individuais
+não foram acessados diretamente**; toda a informação sobre métricas de qualidade,
+escalabilidade, hardware utilizado, taxas de sucesso e demais atributos foi obtida a
+partir das descrições, tabelas e análises presentes no artigo de revisão.
+
+**Consequências metodológicas:**
+
+- **Campos "Não Reportada"**: Muitos trabalhos possuem a maioria dos campos preenchidos
+  como "Não Reportada", pois o artigo de revisão nem sempre detalha todas as dimensões
+  de cada trabalho catalogado. Isso não significa que o trabalho original não contenha
+  essas informações — apenas que elas não foram reportadas na fonte secundária utilizada.
+- **Viés de fonte única**: Como a avaliação depende do que foi reportado por Phillipson
+  (2025), existe um potencial viés de seleção e de profundidade de análise. Trabalhos
+  descritos com mais detalhes no artigo de revisão tendem a receber mais critérios
+  atendidos e, portanto, rankings mais altos.
+- **Limitação de escopo**: Os critérios C1 a C5 foram atribuídos manualmente com base
+  na interpretação das informações disponíveis no artigo de referência, enquanto o
+  critério C6 (Taxa de Sucesso) é avaliado automaticamente a partir do campo
+  `taxa_sucesso` do CSV. Em ambos os casos, a fonte primária é Phillipson (2025).
+
+**Definição dos critérios**: Os seis critérios de avaliação (C1–C6) foram definidos
+pelos autores desta pesquisa com o objetivo de capturar dimensões relevantes de
+maturidade tecnológica (TRL) de soluções quânticas para otimização logística. Os pesos
+foram calibrados de acordo com a relevância prática de cada dimensão para aplicações
+reais em logística, priorizando qualidade da solução, aplicabilidade real e taxa de
+sucesso reportada.
+
 ---
 
 ## 2. Critérios de Seleção
