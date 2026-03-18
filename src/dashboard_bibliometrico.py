@@ -105,6 +105,26 @@ COR_PRIORIDADE = {
     "Baixa": "#A5A5A5",
 }
 
+# Mapeamento de strings para Area de Aplicacao
+AREA_APLICACAO = {
+    1: "TSP",  2: "TSP",  3: "TSP",  4: "TSP",  5: "TSP",
+    8: "TSP",  9: "TSP", 10: "TSP", 12: "TSP", 13: "TSP",
+    14: "TSP", 16: "TSP", 19: "TSP",
+    6: "VRP/Logística", 11: "VRP/Logística", 15: "VRP/Logística",
+    17: "VRP/Logística", 21: "VRP/Logística",
+    18: "Supply Chain/QML", 20: "Supply Chain/QML", 26: "Supply Chain/QML",
+    7: "Otim. Combinatória", 22: "Otim. Combinatória",
+    23: "Otim. Combinatória", 24: "Otim. Combinatória",
+    25: "Otim. Combinatória",
+}
+
+COR_AREA = {
+    "TSP": "#0077B6",
+    "VRP/Logística": "#ED7D31",
+    "Supply Chain/QML": "#70AD47",
+    "Otim. Combinatória": "#9B59B6",
+}
+
 
 # ============================================================
 # CARREGAMENTO DE DADOS
@@ -431,8 +451,9 @@ def aba_impacto(df):
     # Limitar para nao poluir o grafico
     df_bubble_top = df_bubble.nlargest(200, "Citing Works Count")
 
-    df_bubble_top["OA"] = df_bubble_top["Is Open Access"].astype(str).str.lower().apply(
-        lambda x: "Open Access" if x == "true" else "Restrito"
+    # Classificar por Area de Aplicacao (baseada na primeira string do artigo)
+    df_bubble_top["Área de Aplicação"] = df_bubble_top["strings_lista"].apply(
+        lambda lst: AREA_APLICACAO.get(lst[0], "Outros") if lst else "Outros"
     )
 
     # Criar label de hover
@@ -440,7 +461,8 @@ def aba_impacto(df):
         df_bubble_top["Title"].str[:80] + "<br>" +
         df_bubble_top["Author/s"].fillna("").str.split(";").str[0] +
         " (" + df_bubble_top["Publication Year"].astype(int).astype(str) + ")" +
-        "<br>Citacoes: " + df_bubble_top["Citing Works Count"].astype(str)
+        "<br>Citações: " + df_bubble_top["Citing Works Count"].astype(str) +
+        "<br>Área: " + df_bubble_top["Área de Aplicação"]
     )
 
     fig = px.scatter(
@@ -448,11 +470,12 @@ def aba_impacto(df):
         x="Date Published",
         y="Citing Works Count",
         size="Citing Works Count",
-        color="OA",
-        color_discrete_map={"Open Access": CORES["secondary"], "Restrito": "#A5A5A5"},
+        color="Área de Aplicação",
+        color_discrete_map=COR_AREA,
         hover_name="hover",
         size_max=40,
-        labels={"Date Published": "Data de Publicacao", "Citing Works Count": "Citacoes"},
+        labels={"Date Published": "Data de Publicação", "Citing Works Count": "Citações"},
+        category_orders={"Área de Aplicação": ["TSP", "VRP/Logística", "Supply Chain/QML", "Otim. Combinatória"]},
     )
     fig.update_layout(
         height=500, plot_bgcolor="white",
