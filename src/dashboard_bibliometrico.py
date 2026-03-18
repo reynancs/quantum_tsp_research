@@ -6,50 +6,86 @@ unicos identificados na pesquisa bibliografica sobre TSP + Computacao Quantica.
 
 Como usar:
     streamlit run src/dashboard_bibliometrico.py
+
+Dependencias:
+    pip install streamlit pandas plotly numpy wordcloud matplotlib pycountry openpyxl
+
+Estrutura do arquivo:
+    1. Imports e configuracao da pagina
+    2. Constantes (cores, strings de busca, mapeamentos)
+    3. Carregamento de dados (CSV → DataFrame pandas)
+    4. Filtros (sidebar com widgets interativos)
+    5. KPIs (metricas resumo no topo)
+    6. Abas do dashboard (7 abas, cada uma com graficos Plotly)
+    7. Funcao main() que orquestra tudo
 """
 
 import os
+# streamlit (st): framework web para dashboards em Python.
+#   Cada vez que o usuario interage com um widget, o script inteiro re-executa.
+#   Documentacao: https://docs.streamlit.io
 import streamlit as st
+# pandas (pd): manipulacao de dados tabulares (DataFrames = tabelas).
 import pandas as pd
+# plotly.express (px): graficos interativos de alto nivel (bar, scatter, pie, etc.)
+#   Documentacao: https://plotly.com/python/plotly-express/
 import plotly.express as px
+# plotly.graph_objects (go): graficos de baixo nivel (Heatmap, Scatterpolar/radar, etc.)
+#   Usado quando px nao oferece o tipo de grafico desejado.
 import plotly.graph_objects as go
 import numpy as np
+# WordCloud: gera imagens de nuvem de palavras a partir de frequencias.
 from wordcloud import WordCloud
+# matplotlib: usado apenas para renderizar a WordCloud como imagem.
 import matplotlib.pyplot as plt
 import matplotlib
-matplotlib.use("Agg")
+matplotlib.use("Agg")  # Backend sem interface grafica (necessario para servidores)
+# pycountry: converte nomes de paises para codigos ISO-3 (ex: "Brazil" → "BRA")
+#   Necessario para o mapa choropleth do Plotly.
 import pycountry
 
 # ============================================================
 # CONFIGURACAO DA PAGINA
 # ============================================================
 
+# st.set_page_config() DEVE ser o primeiro comando Streamlit do script.
+# Define o titulo da aba do navegador, icone, e layout.
+# layout="wide" usa toda a largura da tela (padrao e "centered").
+# Para alterar o titulo da pagina, modifique page_title abaixo.
 st.set_page_config(
     page_title="Análise Bibliométrica - TSP Quântico",
-    page_icon=":bar_chart:",
-    layout="wide",
-    initial_sidebar_state="expanded",
+    page_icon=":bar_chart:",       # Icone da aba (emoji ou URL de imagem)
+    layout="wide",                  # "wide" = largura total | "centered" = coluna central
+    initial_sidebar_state="expanded",  # Sidebar aberta ao carregar
 )
 
 # ============================================================
 # PALETA DE CORES
 # ============================================================
+# Para alterar as cores do dashboard, modifique os valores hexadecimais (#RRGGBB) abaixo.
+# Use sites como https://colorhunt.co ou https://coolors.co para escolher paletas.
 
+# CORES: dicionario principal de cores usadas em todo o dashboard.
+# Referenciado como CORES["primary"], CORES["danger"], etc.
 CORES = {
-    "primary": "#0077B6",
-    "secondary": "#00B4D8",
-    "accent": "#90E0EF",
-    "highlight": "#CAF0F8",
-    "dark": "#03045E",
-    "success": "#70AD47",
-    "warning": "#FFC000",
-    "danger": "#ED7D31",
+    "primary": "#0077B6",     # Azul principal — usado na maioria dos graficos
+    "secondary": "#00B4D8",   # Azul claro — graficos secundarios
+    "accent": "#90E0EF",      # Azul muito claro — destaques sutis
+    "highlight": "#CAF0F8",   # Azul pastel — fundos e escalas de cor
+    "dark": "#03045E",        # Azul escuro — textos e contrastes fortes
+    "success": "#70AD47",     # Verde — Open Access, itens positivos
+    "warning": "#FFC000",     # Amarelo — alertas, criterios de selecao
+    "danger": "#ED7D31",      # Laranja — prioridade Alta, destaques criticos
 }
 
-# Sequencia para graficos categoricos (inspirada nos tons do Lens.org)
+# PALETTE: lista de cores para graficos com muitas categorias (10 cores).
+# Plotly usa estas cores ciclicamente quando ha mais categorias que cores.
 PALETTE = ["#0077B6", "#00B4D8", "#48CAE4", "#90E0EF", "#023E8A",
            "#0096C7", "#ADE8F4", "#70AD47", "#FFC000", "#ED7D31"]
 
+# PALETTE_PUB_TYPE: cor fixa para cada tipo de publicacao.
+# Usado no grafico de barras empilhadas "Publicacoes ao Longo do Tempo".
+# Para adicionar um novo tipo, adicione uma entrada "tipo": "#COR" aqui.
 PALETTE_PUB_TYPE = {
     "journal article": "#0077B6",
     "preprint": "#03045E",
@@ -61,6 +97,10 @@ PALETTE_PUB_TYPE = {
     "other": "#A5A5A5",
 }
 
+# PRIORIDADES: classifica cada string de busca (1-26) por relevancia ao tema central.
+# Alta = diretamente sobre TSP + computacao quantica
+# Media = termos mais amplos ou perifericos
+# Baixa = complementares, hardware especifico, problemas adjacentes
 PRIORIDADES = {
     1: "Alta", 2: "Alta", 3: "Alta", 4: "Alta", 5: "Alta",
     6: "Alta", 17: "Alta", 18: "Alta",
@@ -70,6 +110,9 @@ PRIORIDADES = {
     23: "Baixa", 24: "Baixa", 25: "Baixa", 26: "Baixa",
 }
 
+# STRINGS_BUSCA: descricao resumida de cada uma das 26 strings de busca usadas no Lens.org.
+# O numero (chave) corresponde ao arquivo CSV em data/exportacoes_lens/.
+# Ex: string 1 → "Traveling Salesman Problem" AND "Quantum Computing"
 STRINGS_BUSCA = {
     1: "TSP + Quantum Computing",
     2: "TSP + Quantum Algorithms",
@@ -105,7 +148,10 @@ COR_PRIORIDADE = {
     "Baixa": "#A5A5A5",
 }
 
-# Mapeamento de strings para Area de Aplicacao
+# AREA_APLICACAO: classifica cada string em uma area tematica para uso no
+# grafico de bolhas "Artigos Mais Citados ao Longo do Tempo" (aba Impacto).
+# Para alterar a classificacao de uma string, mude o valor aqui.
+# Para adicionar uma nova area, adicione tambem em COR_AREA abaixo.
 AREA_APLICACAO = {
     1: "TSP",  2: "TSP",  3: "TSP",  4: "TSP",  5: "TSP",
     8: "TSP",  9: "TSP", 10: "TSP", 12: "TSP", 13: "TSP",
@@ -129,36 +175,55 @@ COR_AREA = {
 # ============================================================
 # CARREGAMENTO DE DADOS
 # ============================================================
+# Fonte de dados principal: data/artigos_unicos.csv (3.696 artigos deduplicados)
+# Fonte de dados secundaria: data/base_algoritmos_abordagens.csv (38 algoritmos catalogados)
+#   → usada apenas na aba "Algoritmos e Abordagens"
+# Fonte auxiliar: docs/pesquisa_palavras_chave_tsp_quantico.xlsx
+#   → usada apenas na aba "Strings de Busca" para exibir strings completas
 
+# Caminho raiz do projeto (um nivel acima de src/)
 PASTA_PROJETO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+# @st.cache_data: decorator do Streamlit que faz CACHE dos dados carregados.
+# Como o Streamlit re-executa o script inteiro a cada interacao do usuario,
+# sem cache o CSV seria relido do disco toda vez. Com cache, le apenas 1 vez.
+# Para forcar recarregamento, clique no botao "Clear Cache" no menu do Streamlit
+# ou reinicie o servidor.
 @st.cache_data
 def carregar_dados():
-    """Carrega e prepara o dataset principal."""
+    """Carrega o CSV principal e prepara colunas derivadas.
+
+    Retorna um DataFrame pandas com as colunas do CSV original mais:
+    - strings_lista: lista de inteiros com os numeros das strings de busca de cada artigo
+    - prioridade: "Alta", "Media" ou "Baixa" (baseada na primeira string)
+    """
     caminho = os.path.join(PASTA_PROJETO, "data", "artigos_unicos.csv")
+    # dtype=str: le todas as colunas como texto para evitar erros de tipo
     df = pd.read_csv(caminho, dtype=str)
 
-    # Conversoes numericas
+    # Converter colunas de texto para numeros (pd.to_numeric com errors="coerce"
+    # converte valores invalidos para NaN em vez de dar erro)
     df["Publication Year"] = pd.to_numeric(df["Publication Year"], errors="coerce")
     df["Citing Works Count"] = pd.to_numeric(df["Citing Works Count"], errors="coerce").fillna(0).astype(int)
     df["Citing Patents Count"] = pd.to_numeric(df["Citing Patents Count"], errors="coerce").fillna(0).astype(int)
     df["qtd_strings"] = pd.to_numeric(df["qtd_strings"], errors="coerce").fillna(1).astype(int)
 
-    # Converter Data Published
+    # Converter data de publicacao para formato datetime (permite eixo temporal nos graficos)
     df["Date Published"] = pd.to_datetime(df["Date Published"], errors="coerce")
 
-    # Lista de strings de origem
+    # Coluna "strings_origem" contem "1;3;7" (separado por ";").
+    # Aqui convertemos para lista Python [1, 3, 7] para facilitar filtros.
     df["strings_lista"] = df["strings_origem"].fillna("").apply(
         lambda x: [int(float(s.strip())) for s in x.split(";") if s.strip() and s.strip() != "nan"]
     )
 
-    # Prioridade (baseada na primeira string)
+    # Atribui prioridade ao artigo baseada na primeira string de origem
     df["prioridade"] = df["strings_lista"].apply(
         lambda lst: PRIORIDADES.get(lst[0], "Baixa") if lst else "Baixa"
     )
 
-    # Normalizar Publication Type
+    # Padronizar tipos de publicacao (minusculas, sem espacos extras)
     df["Publication Type"] = df["Publication Type"].fillna("other").str.lower().str.strip()
 
     return df
@@ -167,31 +232,53 @@ def carregar_dados():
 # ============================================================
 # FILTROS (SIDEBAR)
 # ============================================================
+# A sidebar e o painel lateral esquerdo do Streamlit.
+# Todos os widgets aqui filtram o DataFrame globalmente,
+# afetando TODAS as abas do dashboard (exceto "Algoritmos e Abordagens"
+# que usa sua propria fonte de dados e filtros).
+#
+# Para ADICIONAR UM NOVO FILTRO:
+#   1. Crie o widget na sidebar (st.sidebar.slider, multiselect, radio, etc.)
+#   2. Adicione a logica de filtragem na secao "Aplicar filtros" (mask &= ...)
+#   3. O filtro sera aplicado automaticamente em todas as abas
 
 def criar_filtros(df):
-    """Cria os filtros na sidebar e retorna o DataFrame filtrado."""
+    """Cria widgets de filtro na sidebar e retorna o DataFrame filtrado.
+
+    Args:
+        df: DataFrame completo com todos os artigos
+
+    Returns:
+        DataFrame filtrado conforme selecoes do usuario na sidebar
+    """
+    # st.sidebar.header(): exibe um titulo na barra lateral
     st.sidebar.header("Filtros")
 
-    # 1. Periodo
+    # --- Widget: Slider de periodo ---
+    # st.sidebar.slider() cria uma barra deslizante. Com value=(min, max),
+    # cria um slider de INTERVALO (duas alças). Retorna uma tupla (inicio, fim).
     anos_validos = df["Publication Year"].dropna()
     ano_min = int(anos_validos.min())
     ano_max = int(anos_validos.max())
     ano_range = st.sidebar.slider(
-        "Periodo (Ano)",
-        min_value=ano_min, max_value=ano_max,
-        value=(2018, ano_max),
+        "Periodo (Ano)",                          # Label exibido ao usuario
+        min_value=ano_min, max_value=ano_max,     # Limites do slider
+        value=(2018, ano_max),                    # Valor inicial (intervalo padrao)
     )
 
-    # 2. Tipo de publicacao
+    # --- Widget: Multiselect de tipo de publicacao ---
+    # st.sidebar.multiselect() cria um dropdown onde o usuario pode selecionar
+    # multiplas opcoes. Retorna uma lista com os itens selecionados.
+    # Se nada for selecionado, retorna lista vazia [] (interpretado como "todos").
     tipos = sorted(df["Publication Type"].unique())
     tipos_selecionados = st.sidebar.multiselect(
         "Tipo de Publicação",
-        options=tipos,
-        default=None,
-        placeholder="Todos os tipos",
+        options=tipos,               # Lista de opcoes disponiveis
+        default=None,                # Nenhum selecionado por padrao
+        placeholder="Todos os tipos", # Texto quando nada selecionado
     )
 
-    # 3. String de Busca
+    # --- Widget: Multiselect de string de busca ---
     strings_opcoes = [f"String-{num:02d}" for num in sorted(STRINGS_BUSCA.keys())]
     strings_selecionadas = st.sidebar.multiselect(
         "String de Busca",
@@ -200,7 +287,7 @@ def criar_filtros(df):
         placeholder="Todas",
     )
 
-    # 5. Prioridade da string
+    # --- Widget: Multiselect de prioridade ---
     prioridades_sel = st.sidebar.multiselect(
         "Prioridade da String",
         options=["Alta", "Media", "Baixa"],
@@ -208,60 +295,75 @@ def criar_filtros(df):
         placeholder="Todas",
     )
 
-    # 4. Open Access
+    # --- Widget: Radio buttons para Open Access ---
+    # st.sidebar.radio() cria botoes de opcao unica (apenas 1 selecionado).
+    # horizontal=True coloca os botoes lado a lado em vez de empilhados.
     oa_opcao = st.sidebar.radio(
         "Open Access",
         options=["Todos", "Sim", "Não"],
         horizontal=True,
     )
 
-    # 5. Minimo de citacoes
+    # --- Widget: Slider simples de citacoes minimas ---
+    # Diferente do slider de periodo, este tem apenas UMA alça (valor unico).
     cit_max = min(int(df["Citing Works Count"].max()), 500)
     cit_min = st.sidebar.slider(
         "Minimo de Citações",
-        min_value=0, max_value=cit_max, value=0,
+        min_value=0, max_value=cit_max, value=0,  # value=0 → sem filtro inicial
     )
 
-    # Aplicar filtros
+    # -----------------------------------------------
+    # APLICAR FILTROS
+    # -----------------------------------------------
+    # Tecnica: cria uma mascara booleana (True/False para cada linha).
+    # Comeca com tudo True e vai aplicando AND (&=) com cada filtro.
+    # No final, df[mask] retorna apenas as linhas que passaram em TODOS os filtros.
     mask = pd.Series(True, index=df.index)
 
-    # Periodo
+    # Filtro de periodo: mantem artigos no intervalo OU sem ano definido
     mask &= df["Publication Year"].between(ano_range[0], ano_range[1]) | df["Publication Year"].isna()
 
-    # Tipo
+    # Filtro de tipo: so aplica se o usuario selecionou algo
     if tipos_selecionados:
         mask &= df["Publication Type"].isin(tipos_selecionados)
 
-    # String de Busca
+    # Filtro de string: mantem artigos que pertencem a QUALQUER string selecionada
     if strings_selecionadas:
         nums_sel = [int(s.replace("String-", "")) for s in strings_selecionadas]
         mask &= df["strings_lista"].apply(
             lambda lst: any(n in lst for n in nums_sel)
         )
 
-    # Prioridade
+    # Filtro de prioridade
     if prioridades_sel:
         mask &= df["prioridade"].isin(prioridades_sel)
 
-    # Open Access
+    # Filtro de Open Access
     if oa_opcao == "Sim":
         mask &= df["Is Open Access"].astype(str).str.lower() == "true"
     elif oa_opcao == "Não":
         mask &= df["Is Open Access"].astype(str).str.lower() == "false"
 
-    # Citacoes
+    # Filtro de citacoes minimas
     if cit_min > 0:
         mask &= df["Citing Works Count"] >= cit_min
 
+    # .copy() cria uma copia independente para evitar SettingWithCopyWarning
     return df[mask].copy()
 
 
 # ============================================================
-# METRICAS KPI
+# METRICAS KPI (cartoes com numeros no topo da pagina)
 # ============================================================
 
 def exibir_kpis(df):
-    """Exibe metricas KPI no topo da pagina."""
+    """Exibe 6 cartoes de metricas KPI no topo da pagina.
+
+    Fonte de dados: data/artigos_unicos.csv (filtrado)
+    """
+    # st.columns(6) cria 6 colunas lado a lado na pagina.
+    # Cada coluna pode receber widgets independentes.
+    # Para alterar o numero de KPIs, mude o numero e ajuste as variaveis col.
     col1, col2, col3, col4, col5, col6 = st.columns(6)
 
     total = len(df)
@@ -271,6 +373,8 @@ def exibir_kpis(df):
     oa_pct = (df["Is Open Access"].astype(str).str.lower() == "true").sum() / max(total, 1) * 100
     paises = df["Source Country"].dropna().nunique()
 
+    # st.metric() exibe um cartao com label e valor numerico destacado.
+    # Pode receber um terceiro parametro "delta" para mostrar variacao (ex: +10%).
     col1.metric("Total de Artigos", f"{total:,}")
     col2.metric("Periodo", f"{int(anos.min())}-{int(anos.max())}" if len(anos) > 0 else "N/A")
     col3.metric("Total de Citações", f"{citacoes:,}")
@@ -282,11 +386,15 @@ def exibir_kpis(df):
 # ============================================================
 # ABA 1 — VISAO GERAL
 # ============================================================
+# Fonte de dados: data/artigos_unicos.csv (filtrado pela sidebar)
+# Graficos: barras empilhadas (temporal), pizza (tipos), pizza (OA)
 
 def aba_visao_geral(df):
     """Graficos de visao geral: temporal, tipos de publicacao, open access."""
 
-    # --- Grafico 1: Scholarly Works Over Time (stacked bar) ---
+    # --- Grafico 1: Barras empilhadas por ano e tipo de publicacao ---
+    # px.bar() com color= cria barras coloridas por categoria.
+    # barmode="stack" empilha as categorias (padrao e "group" = lado a lado).
     st.subheader("Publicações ao Longo do Tempo")
 
     df_tempo = df.dropna(subset=["Publication Year"]).copy()
@@ -301,26 +409,41 @@ def aba_visao_geral(df):
 
     contagem = df_tempo.groupby(["Ano", "Tipo"]).size().reset_index(name="Contagem")
 
+    # px.bar(): cria grafico de barras.
+    #   x, y: colunas do DataFrame para eixos
+    #   color: coluna para colorir as barras (cada valor vira uma serie)
+    #   color_discrete_map: dicionario {valor: cor_hex} para cores fixas
+    #   labels: renomeia os eixos na exibicao
     fig = px.bar(
         contagem, x="Ano", y="Contagem", color="Tipo",
         color_discrete_map=PALETTE_PUB_TYPE,
         labels={"Contagem": "Número de Artigos", "Ano": "Ano de Publicação", "Tipo": "Tipo"},
     )
+    # fig.update_layout(): personaliza aparencia do grafico.
+    #   height: altura em pixels | plot_bgcolor: cor de fundo
+    #   legend: posicao e orientacao da legenda
     fig.update_layout(
-        barmode="stack",
+        barmode="stack",  # "stack" = empilhado | "group" = lado a lado
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         height=450,
         plot_bgcolor="white",
     )
-    fig.update_xaxes(dtick=1)
+    fig.update_xaxes(dtick=1)  # dtick=1: mostra TODOS os anos no eixo X
+    # st.plotly_chart(): renderiza o grafico Plotly na pagina.
+    # width="stretch": ocupa toda a largura disponivel.
     st.plotly_chart(fig, width="stretch")
 
-    # --- Graficos 2 e 3: Tipos de publicacao + Open Access ---
+    # --- Graficos 2 e 3 lado a lado (2 colunas) ---
+    # st.columns(2) cria 2 colunas de largura igual.
+    # "with col1:" coloca tudo dentro na coluna esquerda.
     col1, col2 = st.columns(2)
 
     with col1:
         st.subheader("Tipos de Publicação")
         contagem_tipo = df["Publication Type"].value_counts().head(8)
+        # px.pie(): grafico de pizza/rosca.
+        #   hole=0.4: cria um furo central (rosca/donut). 0 = pizza cheia, 1 = so borda.
+        #   Para alterar quantos tipos aparecem, mude .head(8) acima.
         fig_tipo = px.pie(
             values=contagem_tipo.values,
             names=contagem_tipo.index,
@@ -367,9 +490,11 @@ def aba_visao_geral(df):
 # ============================================================
 # ABA 2 — FONTES E AUTORES
 # ============================================================
+# Fonte de dados: data/artigos_unicos.csv (filtrado)
+# Graficos: 3 barras horizontais (journals, autores, editoras)
 
 def aba_fontes_autores(df):
-    """Graficos de journals, autores e publishers."""
+    """Top journals, autores mais ativos e editoras. Barras horizontais."""
 
     col1, col2 = st.columns(2)
 
@@ -438,17 +563,23 @@ def aba_fontes_autores(df):
 # ============================================================
 # ABA 3 — IMPACTO E CITACOES
 # ============================================================
+# Fonte de dados: data/artigos_unicos.csv (filtrado)
+# Graficos: bubble chart (scatter com tamanho), histograma, tabela top 20
 
 def aba_impacto(df):
-    """Graficos de citacoes e impacto."""
+    """Analise de citacoes: bubble chart por area, histograma e ranking."""
 
-    # --- Bubble chart: Top Cited Works Over Time ---
+    # --- Bubble chart (grafico de bolhas) ---
+    # Usa px.scatter() com parametro size= para criar bolhas proporcionais.
+    # Cada bolha e um artigo; tamanho = numero de citacoes.
+    # Cor = Area de Aplicacao (derivada da string de busca do artigo).
     st.subheader("Artigos Mais Citados ao Longo do Tempo")
 
     df_bubble = df.dropna(subset=["Date Published"]).copy()
     df_bubble = df_bubble[df_bubble["Citing Works Count"] > 0]
 
-    # Limitar para nao poluir o grafico
+    # .nlargest(200, ...): pega os 200 artigos mais citados.
+    # Para mostrar mais ou menos bolhas, altere este numero.
     df_bubble_top = df_bubble.nlargest(200, "Citing Works Count")
 
     # Classificar por Area de Aplicacao (baseada na primeira string do artigo)
@@ -465,6 +596,13 @@ def aba_impacto(df):
         "<br>Área: " + df_bubble_top["Área de Aplicação"]
     )
 
+    # px.scatter(): grafico de dispersao. Com size= vira grafico de bolhas.
+    #   size: coluna que define o tamanho das bolhas
+    #   size_max: tamanho maximo em pixels da maior bolha (ajustar se ficarem grandes demais)
+    #   color: coluna para colorir os pontos por categoria
+    #   color_discrete_map: mapa de cores fixas (definido em COR_AREA)
+    #   hover_name: texto exibido ao passar o mouse sobre a bolha
+    #   category_orders: ordem das categorias na legenda
     fig = px.scatter(
         df_bubble_top,
         x="Date Published",
@@ -483,12 +621,15 @@ def aba_impacto(df):
     )
     st.plotly_chart(fig, width="stretch")
 
-    # --- Histograma de citacoes + Top 20 ---
+    # --- Histograma + Tabela top 20 (lado a lado) ---
     col1, col2 = st.columns(2)
 
     with col1:
         st.subheader("Distribuição de Citações")
         df_cit = df[df["Citing Works Count"] > 0].copy()
+        # px.histogram(): agrupa valores em faixas (bins) e conta frequencia.
+        #   nbins: numero de faixas (mais = maior resolucao, menos = mais agregado)
+        #   log_y=True: eixo Y em escala logaritmica (util quando poucos artigos tem muitas citacoes)
         fig_hist = px.histogram(
             df_cit, x="Citing Works Count",
             nbins=50,
@@ -512,6 +653,8 @@ def aba_impacto(df):
         )
 
     with col2:
+        # st.dataframe(): exibe uma tabela interativa (ordenavel, pesquisavel).
+        # Para alterar o numero de artigos, mude nlargest(20, ...) abaixo.
         st.subheader("Top 20 Artigos Mais Citados")
         df_top = df.nlargest(20, "Citing Works Count")[
             ["Title", "Author/s", "Publication Year", "Citing Works Count", "DOI"]
@@ -530,9 +673,12 @@ def aba_impacto(df):
 # ============================================================
 # ABA 4 — CAMPOS DE ESTUDO
 # ============================================================
+# Fonte de dados: data/artigos_unicos.csv (filtrado)
+# Colunas usadas: "Fields of Study" (multi-valor, separado por ";") e "Keywords"
+# Graficos: treemap (Plotly) + nuvem de palavras (matplotlib/WordCloud)
 
 def aba_campos_estudo(df):
-    """Treemaps de campos de estudo e keywords."""
+    """Treemap de campos de estudo e nuvem de palavras de keywords."""
 
     col1, col2 = st.columns(2)
 
@@ -548,6 +694,10 @@ def aba_campos_estudo(df):
         contagem = pd.Series(todos_campos).value_counts().head(30).reset_index()
         contagem.columns = ["Campo", "Frequencia"]
 
+        # px.treemap(): retangulos aninhados proporcionais ao valor.
+        #   path: hierarquia de categorias (aqui so 1 nivel)
+        #   values: coluna que define o tamanho de cada retangulo
+        #   color_continuous_scale: gradiente de cores [mais claro → mais escuro]
         fig = px.treemap(
             contagem,
             path=["Campo"],
@@ -575,24 +725,29 @@ def aba_campos_estudo(df):
         if todas_kw:
             freq_kw = dict(pd.Series(todas_kw).value_counts().head(100))
 
+            # WordCloud: gera imagem com palavras proporcionais a frequencia.
+            #   max_words: limite de palavras na nuvem
+            #   colormap: paleta matplotlib ("ocean", "viridis", "plasma", etc.)
+            #   generate_from_frequencies(): usa dicionario {palavra: contagem}
             wc = WordCloud(
                 width=800,
                 height=500,
                 background_color="white",
-                colormap="ocean",
-                max_words=80,
-                prefer_horizontal=0.7,
+                colormap="ocean",        # Paleta de cores (trocar por "viridis", "plasma", etc.)
+                max_words=80,            # Maximo de palavras exibidas
+                prefer_horizontal=0.7,   # 70% horizontal, 30% vertical
                 min_font_size=10,
                 max_font_size=80,
                 relative_scaling=0.5,
             ).generate_from_frequencies(freq_kw)
 
+            # WordCloud gera imagem matplotlib, entao usamos st.pyplot() (nao st.plotly_chart)
             fig_wc, ax_wc = plt.subplots(figsize=(10, 6))
             ax_wc.imshow(wc, interpolation="bilinear")
             ax_wc.axis("off")
             plt.tight_layout(pad=0)
-            st.pyplot(fig_wc)
-            plt.close(fig_wc)
+            st.pyplot(fig_wc)  # st.pyplot(): renderiza graficos matplotlib no Streamlit
+            plt.close(fig_wc)  # Liberar memoria
         else:
             st.info("Nenhum keyword disponivel com os filtros atuais.")
 
@@ -600,9 +755,12 @@ def aba_campos_estudo(df):
 # ============================================================
 # ABA 5 — GEOGRAFIA
 # ============================================================
+# Fonte de dados: data/artigos_unicos.csv (filtrado)
+# Coluna usada: "Source Country"
+# Graficos: mapa choropleth mundial + barras horizontais top 15 paises
 
 def aba_geografia(df):
-    """Mapa e graficos geograficos."""
+    """Mapa mundial colorido por numero de publicacoes e ranking de paises."""
 
     cobertura = df["Source Country"].notna().sum() / len(df) * 100
     st.caption(
@@ -625,6 +783,12 @@ def aba_geografia(df):
     contagem_pais["ISO3"] = contagem_pais["Pais"].apply(pais_para_iso3)
     contagem_pais = contagem_pais.dropna(subset=["ISO3"])
 
+    # px.choropleth(): mapa mundial onde cada pais e colorido conforme um valor.
+    #   locations: coluna com codigos ISO-3 dos paises (ex: "BRA", "USA")
+    #   color: coluna que define a intensidade da cor
+    #   color_continuous_scale: gradiente de cores [menos → mais]
+    #   Para mudar a projecao do mapa, altere projection_type abaixo
+    #   (opcoes: "natural earth", "orthographic", "mercator", "equirectangular")
     fig_mapa = px.choropleth(
         contagem_pais,
         locations="ISO3",
@@ -658,9 +822,12 @@ def aba_geografia(df):
 # ============================================================
 # ABA 6 — STRINGS DE BUSCA
 # ============================================================
+# Fonte de dados: data/artigos_unicos.csv (filtrado) + docs/pesquisa_palavras_chave_tsp_quantico.xlsx
+# A planilha Excel e usada apenas para exibir as strings completas na tabela de referencia.
+# Graficos: barras por string, barras de sobreposicao, heatmap de coocorrencia
 
 def aba_strings(df):
-    """Analise das strings de busca: volume, sobreposicao, coocorrencia."""
+    """Analise das strings de busca: volume, sobreposicao e coocorrencia."""
 
     # --- Volume por String ---
     st.subheader("Volume de Artigos por String de Busca")
@@ -714,6 +881,11 @@ def aba_strings(df):
         st.plotly_chart(fig_overlap, width="stretch")
 
     with col2:
+        # Heatmap de coocorrencia: mostra quantos artigos aparecem em AMBAS as strings.
+        # go.Heatmap(): grafico de calor (matrix). Usado quando px nao tem o tipo.
+        #   z: matriz 2D de valores | x, y: labels dos eixos
+        #   colorscale: gradiente de cores [[posicao, cor], ...]
+        #   text/texttemplate: exibe valores dentro das celulas
         st.subheader("Coocorrência entre Strings")
         st.caption("Quantos artigos compartilham cada par de strings")
 
@@ -804,6 +976,12 @@ def aba_strings(df):
 # ============================================================
 # ABA 7 — ALGORITMOS E ABORDAGENS
 # ============================================================
+# Fonte de dados: data/base_algoritmos_abordagens.csv (38 algoritmos catalogados)
+#   → Esta aba usa uma fonte de dados DIFERENTE das demais abas.
+#   → Possui seus PROPRIOS filtros (paradigma, abordagem, area, variante).
+#   → Os filtros da sidebar NÃO afetam esta aba.
+# Graficos: pizza (paradigma, abordagem), barras (timeline, hardware, variantes,
+#           escala, criterios, formulacao, metricas), heatmap, radar, tabela
 
 PALETTE_PARADIGMA = {
     "Quantum Annealing": "#0077B6",
@@ -840,9 +1018,16 @@ def aba_algoritmos():
     df_algo = carregar_algoritmos()
 
     # --- Filtros especificos desta aba ---
+    # Diferente das abas 1-6, esta aba tem seus PROPRIOS filtros (nao usa a sidebar).
+    # st.markdown("##### ...") renderiza como titulo h5 (pequeno).
     st.markdown("##### Filtros de Algoritmos")
+    # st.columns(4): cria 4 colunas para alinhar os filtros lado a lado.
     fc1, fc2, fc3, fc4 = st.columns(4)
 
+    # Cada filtro usa st.multiselect() com key= unico.
+    # O parametro key= e OBRIGATORIO quando ha multiplos widgets do mesmo tipo no dashboard,
+    # pois o Streamlit usa a key para identificar o estado de cada widget.
+    # Se duas multiselects nao tiverem key= diferente, o Streamlit confunde os valores.
     with fc1:
         paradigmas = sorted(df_algo["paradigma"].dropna().unique())
         paradigma_sel = st.multiselect(
@@ -883,7 +1068,8 @@ def aba_algoritmos():
             key="algo_variante",
         )
 
-    # Aplicar filtros
+    # Aplicar filtros — mesma logica de mascara booleana usada em criar_filtros().
+    # Se nenhuma opcao for selecionada, a lista fica vazia e o filtro nao e aplicado.
     mask = pd.Series(True, index=df_algo.index)
     if paradigma_sel:
         mask &= df_algo["paradigma"].isin(paradigma_sel)
@@ -895,7 +1081,8 @@ def aba_algoritmos():
         mask &= df_algo["variante_tsp"].isin(variante_sel)
     df_f = df_algo[mask].copy()
 
-    # Excluir linhas de plataformas genericas e revisoes para graficos de trabalhos
+    # df_trabalhos: exclui linhas de taxonomia (plataformas genericas).
+    # df_todos: inclui tudo (para contagens gerais como "algoritmos distintos").
     df_trabalhos = df_f[~df_f["fonte"].isin(["Taxonomia"])].copy()
     df_todos = df_f.copy()
 
@@ -1157,7 +1344,9 @@ def aba_algoritmos():
     st.subheader("Radar de Maturidade por Paradigma")
     st.caption("Avaliação qualitativa baseada na análise dos trabalhos catalogados")
 
-    # Calcular metricas de maturidade por paradigma
+    # Calcular metricas de maturidade por paradigma (avaliacao qualitativa 0-5)
+    # Cada paradigma e avaliado em 5 dimensoes, resultando num grafico radar.
+    # Para ajustar a avaliacao, altere as formulas de normalizacao abaixo.
     paradigmas_radar = df_trabalhos[~df_trabalhos["paradigma"].isin(["Revisao"])]["paradigma"].unique()
     radar_data = []
 
@@ -1167,24 +1356,15 @@ def aba_algoritmos():
         if n == 0:
             continue
 
-        # Dimensoes de maturidade (0-5 escala)
-        # 1. Volume de publicacoes
-        vol = min(n / 3, 5)  # normalizar: 15+ trabalhos = 5
-
-        # 2. Variedade de problemas
-        var = min(df_par["variante_tsp"].nunique() / 2, 5)
-
-        # 3. Uso de hardware real
+        # Dimensoes de maturidade (escala 0-5, normalizada com min() para nao ultrapassar 5)
+        vol = min(n / 3, 5)                                             # Volume: 15+ trabalhos = score 5
+        var = min(df_par["variante_tsp"].nunique() / 2, 5)              # Variedade: 10+ variantes = 5
         hw_real = df_par["hardware"].fillna("").str.contains("D-Wave|IBM Quantum|Amazon", case=False).sum()
-        hw_score = min(hw_real / max(n * 0.3, 1) * 5, 5)
-
-        # 4. Cenarios realistas (C3)
+        hw_score = min(hw_real / max(n * 0.3, 1) * 5, 5)               # Hardware real: proporcao de uso
         c3 = df_par["criterios"].fillna("").str.contains("C3").sum()
-        c3_score = min(c3 / max(n * 0.2, 1) * 5, 5)
-
-        # 5. Escala (instancias maiores)
+        c3_score = min(c3 / max(n * 0.2, 1) * 5, 5)                    # Cenarios realistas (criterio C3)
         escala_media = df_par["escala_testada"].fillna("").str.contains("Media|Variavel").sum()
-        escala_score = min(escala_media / max(n * 0.3, 1) * 5, 5)
+        escala_score = min(escala_media / max(n * 0.3, 1) * 5, 5)      # Escalabilidade: instancias maiores
 
         radar_data.append({
             "Paradigma": par,
@@ -1198,12 +1378,17 @@ def aba_algoritmos():
     if radar_data:
         dims = ["Volume", "Variedade", "Hardware Real", "Cenários Reais", "Escalabilidade"]
 
+        # go.Scatterpolar(): grafico de radar (spider chart).
+        #   r: valores radiais (distancia do centro) — aqui, scores 0-5
+        #   theta: nomes dos eixos radiais
+        #   fill="toself": preenche a area do poligono formado pelos pontos
+        # IMPORTANTE: o ultimo valor de r/theta repete o primeiro para FECHAR o poligono.
         fig_radar = go.Figure()
         cores_radar = list(PALETTE_PARADIGMA.values())
 
         for i, row in enumerate(radar_data):
             values = [row[d] for d in dims]
-            values.append(values[0])  # fechar o poligono
+            values.append(values[0])  # fechar o poligono (volta ao primeiro ponto)
 
             fig_radar.add_trace(go.Scatterpolar(
                 r=values,
@@ -1214,6 +1399,7 @@ def aba_algoritmos():
                 opacity=0.6,
             ))
 
+        # polar.radialaxis.range: define a escala fixa do radar (0 a 5).
         fig_radar.update_layout(
             polar=dict(radialaxis=dict(visible=True, range=[0, 5])),
             height=500,
@@ -1262,27 +1448,33 @@ def aba_algoritmos():
 # ============================================================
 # EXECUCAO PRINCIPAL
 # ============================================================
+# Fluxo do Streamlit: o script inteiro e re-executado de cima para baixo
+# toda vez que o usuario interage com qualquer widget (slider, multiselect, etc.).
+# O @st.cache_data garante que os CSVs nao sejam relidos do disco a cada re-execucao.
 
 def main():
-    # Titulo
+    # st.title(): titulo grande da pagina (equivale a <h1> em HTML).
     st.title("Análise Bibliométrica — TSP Quântico")
     st.caption(
         "Exploração dos 3.696 artigos únicos identificados na pesquisa bibliográfica | "
         "Mestrado Profissional — SENAI CIMATEC"
     )
 
-    # Carregar dados
+    # 1. Carregar dados do CSV (cacheado — so le do disco na primeira vez)
     df = carregar_dados()
 
-    # Filtros
+    # 2. Montar filtros na sidebar e obter DataFrame filtrado
     df_filtrado = criar_filtros(df)
 
-    # KPIs
+    # 3. Exibir KPIs no topo (metricas resumidas)
     exibir_kpis(df_filtrado)
 
     st.divider()
 
-    # Abas
+    # 4. st.tabs(): cria abas de navegacao horizontais.
+    #    Retorna N objetos, um por aba. Cada aba e preenchida com "with tabN:".
+    #    IMPORTANTE: o numero de variaveis deve corresponder ao numero de nomes na lista.
+    #    Para adicionar uma aba, inclua o nome na lista e crie uma nova variavel (tab8, etc.).
     tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
         "Visão Geral",
         "Fontes e Autores",
@@ -1293,6 +1485,8 @@ def main():
         "Algoritmos e Abordagens",
     ])
 
+    # Abas 1-6 recebem df_filtrado (filtrado pela sidebar).
+    # Aba 7 (Algoritmos) NAO recebe df_filtrado — usa sua propria fonte de dados e filtros.
     with tab1:
         aba_visao_geral(df_filtrado)
 
@@ -1315,5 +1509,7 @@ def main():
         aba_algoritmos()
 
 
+# Ponto de entrada: so executa quando o script e rodado diretamente
+# (nao quando importado como modulo). O Streamlit chama este arquivo diretamente.
 if __name__ == "__main__":
     main()
