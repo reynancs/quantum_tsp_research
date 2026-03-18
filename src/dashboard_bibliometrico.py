@@ -624,49 +624,52 @@ def aba_impacto(df):
     # --- Histograma + Tabela top 20 (lado a lado) ---
     col1, col2 = st.columns(2)
 
-    with col1:
-        st.subheader("Distribuição de Citações")
-        df_cit = df[df["Citing Works Count"] > 0].copy()
-        # px.histogram(): agrupa valores em faixas (bins) e conta frequencia.
-        #   nbins: numero de faixas (mais = maior resolucao, menos = mais agregado)
-        #   log_y=True: eixo Y em escala logaritmica (util quando poucos artigos tem muitas citacoes)
-        fig_hist = px.histogram(
-            df_cit, x="Citing Works Count",
-            nbins=50,
-            color_discrete_sequence=[CORES["primary"]],
-            labels={"Citing Works Count": "Número de Citações"},
-            log_y=True,
-        )
-        fig_hist.update_layout(
-            height=400, plot_bgcolor="white",
-            yaxis_title="Quantidade de Artigos (log)",
-        )
-        st.plotly_chart(fig_hist, width="stretch")
+    #with col1:
+    st.subheader("Distribuição de Citações")
+    df_cit = df[df["Citing Works Count"] > 0].copy()
+    # px.histogram(): agrupa valores em faixas (bins) e conta frequencia.
+    #   nbins: numero de faixas (mais = maior resolucao, menos = mais agregado)
+    #   log_y=True: eixo Y em escala logaritmica (util quando poucos artigos tem muitas citacoes)
+    fig_hist = px.histogram(
+        df_cit, x="Citing Works Count",
+        nbins=50,
+        color_discrete_sequence=[CORES["primary"]],
+        labels={"Citing Works Count": "Número de Citações"},
+        log_y=True,
+     )
+    fig_hist.update_layout(
+        height=400, plot_bgcolor="white",
+        yaxis_title="Quantidade de Artigos (log)",
+      )
+    st.plotly_chart(fig_hist, width="stretch")
 
         # Info contextual
-        mediana = df["Citing Works Count"].median()
-        p90 = df["Citing Works Count"].quantile(0.9)
-        st.caption(
-            f"Mediana: {mediana:.0f} citações | "
-            f"90% dos artigos tem ate {p90:.0f} citações | "
-            f"Artigos sem citação: {(df['Citing Works Count'] == 0).sum()}"
-        )
+    mediana = df["Citing Works Count"].median()
+    p90 = df["Citing Works Count"].quantile(0.9)
+    st.caption(
+        f"Mediana: {mediana:.0f} citações | "
+        f"90% dos artigos tem ate {p90:.0f} citações | "
+        f"Artigos sem citação: {(df['Citing Works Count'] == 0).sum()}"
+    )
 
-    with col2:
-        # st.dataframe(): exibe uma tabela interativa (ordenavel, pesquisavel).
-        # Para alterar o numero de artigos, mude nlargest(20, ...) abaixo.
-        st.subheader("Top 20 Artigos Mais Citados")
-        df_top = df.nlargest(20, "Citing Works Count")[
-            ["Title", "Author/s", "Publication Year", "Citing Works Count", "DOI"]
-        ].copy()
-        df_top.columns = ["Titulo", "Autores", "Ano", "Citacoes", "DOI"]
-        df_top["Autores"] = df_top["Autores"].fillna("").str.split(";").str[0]
-        df_top["Titulo"] = df_top["Titulo"].str[:80]
-        df_top["Ano"] = df_top["Ano"].fillna(0).astype(int)
-        st.dataframe(
-            df_top.reset_index(drop=True),
-            height=400,
-            width="stretch",
+    #with col2:
+     # st.dataframe(): exibe uma tabela interativa (ordenavel, pesquisavel).
+     # Para alterar o numero de artigos, mude nlargest(20, ...) abaixo.
+    st.subheader("Top 20 Artigos Mais Citados")
+    df_top = df.nlargest(20, "Citing Works Count")[
+            ["Title", "Author/s", "Publication Year", "DOI","Citing Works Count"]
+     ].copy()
+    df_top.columns = ["Titulo", "Autores", "Ano", "DOI", "Citações"]
+    df_top["Autores"] = df_top["Autores"].fillna("").str.split(";").str[0]
+    df_top["Titulo"] = df_top["Titulo"].str[:80]
+    df_top["Ano"] = df_top["Ano"].fillna(0).astype(int)
+    # Calcula o percentual de citações em relação ao artigo mais citado do dataset
+    df_top["Citações(%)"] = (df_top["Citações"] / df["Citing Works Count"].sum() * 100).round(1).astype(str) + "%"
+    st.dataframe(
+        df_top.reset_index(drop=True),
+        height=740,
+        width="stretch",
+        use_container_width=True
         )
 
 
@@ -680,76 +683,76 @@ def aba_impacto(df):
 def aba_campos_estudo(df):
     """Treemap de campos de estudo e nuvem de palavras de keywords."""
 
-    col1, col2 = st.columns(2)
+    #col1, col2 = st.columns(2)
 
-    with col1:
-        st.subheader("Top 30 Campos de Estudo (Fields of Study)")
-        todos_campos = []
-        for campos in df["Fields of Study"].dropna():
-            for campo in str(campos).split(";"):
-                campo = campo.strip()
-                if campo:
-                    todos_campos.append(campo)
+    #with col1:
+    st.subheader("Top 30 - Fields of Study")
+    todos_campos = []
+    for campos in df["Fields of Study"].dropna():
+        for campo in str(campos).split(";"):
+            campo = campo.strip()
+            if campo:
+                todos_campos.append(campo)
 
-        contagem = pd.Series(todos_campos).value_counts().head(30).reset_index()
-        contagem.columns = ["Campo", "Frequencia"]
+    contagem = pd.Series(todos_campos).value_counts().head(30).reset_index()
+    contagem.columns = ["Campo", "Frequencia"]
 
-        # px.treemap(): retangulos aninhados proporcionais ao valor.
-        #   path: hierarquia de categorias (aqui so 1 nivel)
-        #   values: coluna que define o tamanho de cada retangulo
-        #   color_continuous_scale: gradiente de cores [mais claro → mais escuro]
-        fig = px.treemap(
-            contagem,
-            path=["Campo"],
-            values="Frequencia",
-            color="Frequencia",
-            color_continuous_scale=["#CAF0F8", "#0077B6", "#03045E"],
-        )
-        fig.update_layout(height=500)
-        fig.update_traces(textinfo="label+value")
-        st.plotly_chart(fig, width="stretch")
+    # px.treemap(): retangulos aninhados proporcionais ao valor.
+    #   path: hierarquia de categorias (aqui so 1 nivel)
+    #   values: coluna que define o tamanho de cada retangulo
+    #   color_continuous_scale: gradiente de cores [mais claro → mais escuro]
+    fig = px.treemap(
+        contagem,
+        path=["Campo"],
+        values="Frequencia",
+        color="Frequencia",
+        color_continuous_scale=["#CAF0F8", "#0077B6", "#03045E"],
+    )
+    fig.update_layout(height=600, plot_bgcolor="white")
+    fig.update_traces(textinfo="label+value")
+    st.plotly_chart(fig, width="stretch")
 
-    with col2:
-        st.subheader("Nuvem de Palavras — Keywords")
-        keywords_preenchidos = df["Keywords"].dropna()
-        cobertura = len(keywords_preenchidos) / len(df) * 100
-        st.caption(f"Cobertura: {cobertura:.1f}% dos artigos possuem keywords")
+    #with col2:
+    st.subheader("Nuvem de Palavras — Keywords")
+    keywords_preenchidos = df["Keywords"].dropna()
+    cobertura = len(keywords_preenchidos) / len(df) * 100
+    st.caption(f"Cobertura: {cobertura:.1f}% dos artigos possuem keywords")
 
-        todas_kw = []
-        for kws in keywords_preenchidos:
-            for kw in str(kws).split(";"):
-                kw = kw.strip()
-                if kw:
-                    todas_kw.append(kw)
+    todas_kw = []
+    for kws in keywords_preenchidos:
+        for kw in str(kws).split(";"):
+            kw = kw.strip()
+            if kw:
+                todas_kw.append(kw)
 
-        if todas_kw:
-            freq_kw = dict(pd.Series(todas_kw).value_counts().head(100))
+    if todas_kw:
+        freq_kw = dict(pd.Series(todas_kw).value_counts().head(100))
 
-            # WordCloud: gera imagem com palavras proporcionais a frequencia.
-            #   max_words: limite de palavras na nuvem
-            #   colormap: paleta matplotlib ("ocean", "viridis", "plasma", etc.)
-            #   generate_from_frequencies(): usa dicionario {palavra: contagem}
-            wc = WordCloud(
-                width=800,
-                height=500,
-                background_color="white",
-                colormap="ocean",        # Paleta de cores (trocar por "viridis", "plasma", etc.)
-                max_words=80,            # Maximo de palavras exibidas
-                prefer_horizontal=0.7,   # 70% horizontal, 30% vertical
-                min_font_size=10,
-                max_font_size=80,
-                relative_scaling=0.5,
-            ).generate_from_frequencies(freq_kw)
+        # WordCloud: gera imagem com palavras proporcionais a frequencia.
+        #   max_words: limite de palavras na nuvem
+        #   colormap: paleta matplotlib ("ocean", "viridis", "plasma", etc.)
+        #   generate_from_frequencies(): usa dicionario {palavra: contagem}
+        wc = WordCloud(
+            width=800,
+            height=400,
+            background_color="white",
+            colormap="viridis",        # Paleta de cores (trocar por "viridis", "plasma", "ocean" etc.)
+            max_words=80,            # Maximo de palavras exibidas
+            prefer_horizontal=0.7,   # 70% horizontal, 30% vertical
+            min_font_size=10,
+            max_font_size=80,
+            relative_scaling=0.5,
+        ).generate_from_frequencies(freq_kw)
 
-            # WordCloud gera imagem matplotlib, entao usamos st.pyplot() (nao st.plotly_chart)
-            fig_wc, ax_wc = plt.subplots(figsize=(10, 6))
-            ax_wc.imshow(wc, interpolation="bilinear")
-            ax_wc.axis("off")
-            plt.tight_layout(pad=0)
-            st.pyplot(fig_wc)  # st.pyplot(): renderiza graficos matplotlib no Streamlit
-            plt.close(fig_wc)  # Liberar memoria
-        else:
-            st.info("Nenhum keyword disponivel com os filtros atuais.")
+        # WordCloud gera imagem matplotlib, entao usamos st.pyplot() (nao st.plotly_chart)
+        fig_wc, ax_wc = plt.subplots(figsize=(10, 6))
+        ax_wc.imshow(wc, interpolation="bilinear")
+        ax_wc.axis("off")
+        plt.tight_layout(pad=0)
+        st.pyplot(fig_wc)  # st.pyplot(): renderiza graficos matplotlib no Streamlit
+        plt.close(fig_wc)  # Liberar memoria
+    else:
+        st.info("Nenhum keyword disponivel com os filtros atuais.")
 
 
 # ============================================================
@@ -862,64 +865,64 @@ def aba_strings(df):
     st.plotly_chart(fig, width="stretch")
 
     # --- Sobreposicao + Heatmap ---
-    col1, col2 = st.columns(2)
+    #col1, col2 = st.columns(2)
 
-    with col1:
-        st.subheader("Sobreposição entre Strings")
-        contagem_overlap = df["qtd_strings"].value_counts().sort_index()
-        fig_overlap = px.bar(
-            x=contagem_overlap.index.astype(str),
-            y=contagem_overlap.values,
-            color_discrete_sequence=[CORES["primary"]],
-            labels={"x": "Aparece em N strings", "y": "Qtd Artigos"},
-        )
-        fig_overlap.update_layout(height=400, plot_bgcolor="white")
-        fig_overlap.update_traces(
-            text=[f"{v} ({v/len(df)*100:.1f}%)" for v in contagem_overlap.values],
-            textposition="outside",
-        )
-        st.plotly_chart(fig_overlap, width="stretch")
+    #with col1:
+    st.subheader("Sobreposição entre Strings")
+    contagem_overlap = df["qtd_strings"].value_counts().sort_index()
+    fig_overlap = px.bar(
+        x=contagem_overlap.index.astype(str),
+        y=contagem_overlap.values,
+        color_discrete_sequence=[CORES["primary"]],
+        labels={"x": "Aparece em N strings", "y": "Qtd Artigos"},
+    )
+    fig_overlap.update_layout(height=600, plot_bgcolor="white")
+    fig_overlap.update_traces(
+        text=[f"{v} ({v/len(df)*100:.1f}%)" for v in contagem_overlap.values],
+        textposition="outside",
+    )
+    st.plotly_chart(fig_overlap, width="stretch")
 
-    with col2:
-        # Heatmap de coocorrencia: mostra quantos artigos aparecem em AMBAS as strings.
-        # go.Heatmap(): grafico de calor (matrix). Usado quando px nao tem o tipo.
-        #   z: matriz 2D de valores | x, y: labels dos eixos
-        #   colorscale: gradiente de cores [[posicao, cor], ...]
-        #   text/texttemplate: exibe valores dentro das celulas
-        st.subheader("Coocorrência entre Strings")
-        st.caption("Quantos artigos compartilham cada par de strings")
+    #with col2:
+    # Heatmap de coocorrencia: mostra quantos artigos aparecem em AMBAS as strings.
+    # go.Heatmap(): grafico de calor (matrix). Usado quando px nao tem o tipo.
+    #   z: matriz 2D de valores | x, y: labels dos eixos
+    #   colorscale: gradiente de cores [[posicao, cor], ...]
+    #   text/texttemplate: exibe valores dentro das celulas
+    st.subheader("Coocorrência entre Strings")
+    st.caption("Quantos artigos compartilham cada par de strings")
 
-        # Construir matriz de coocorrencia
-        strings_presentes = sorted(set(s for lst in df["strings_lista"] for s in lst))
-        n = len(strings_presentes)
-        idx_map = {s: i for i, s in enumerate(strings_presentes)}
-        matriz = np.zeros((n, n), dtype=int)
+    # Construir matriz de coocorrencia
+    strings_presentes = sorted(set(s for lst in df["strings_lista"] for s in lst))
+    n = len(strings_presentes)
+    idx_map = {s: i for i, s in enumerate(strings_presentes)}
+    matriz = np.zeros((n, n), dtype=int)
 
-        for lst in df["strings_lista"]:
-            if len(lst) > 1:
-                for i in range(len(lst)):
-                    for j in range(i + 1, len(lst)):
-                        si, sj = lst[i], lst[j]
-                        if si in idx_map and sj in idx_map:
-                            matriz[idx_map[si]][idx_map[sj]] += 1
-                            matriz[idx_map[sj]][idx_map[si]] += 1
+    for lst in df["strings_lista"]:
+        if len(lst) > 1:
+            for i in range(len(lst)):
+                for j in range(i + 1, len(lst)):
+                    si, sj = lst[i], lst[j]
+                    if si in idx_map and sj in idx_map:
+                        matriz[idx_map[si]][idx_map[sj]] += 1
+                        matriz[idx_map[sj]][idx_map[si]] += 1
 
-        labels_str = [f"#{s}" for s in strings_presentes]
+    labels_str = [f"#{s}" for s in strings_presentes]
 
-        fig_heat = go.Figure(data=go.Heatmap(
-            z=matriz,
-            x=labels_str,
-            y=labels_str,
-            colorscale=[[0, "#FFFFFF"], [0.2, "#CAF0F8"], [0.5, "#48CAE4"], [1, "#03045E"]],
-            text=matriz,
-            texttemplate="%{text}",
-            textfont={"size": 7},
-        ))
-        fig_heat.update_layout(
-            height=500,
-            xaxis=dict(tickangle=45),
-        )
-        st.plotly_chart(fig_heat, width="stretch")
+    fig_heat = go.Figure(data=go.Heatmap(
+        z=matriz,
+        x=labels_str,
+        y=labels_str,
+        colorscale=[[0, "#FFFFFF"], [0.2, "#CAF0F8"], [0.5, "#48CAE4"], [1, "#03045E"]],
+        text=matriz,
+        texttemplate="%{text}",
+        textfont={"size": 8},
+    ))
+    fig_heat.update_layout(
+        height=600,
+        xaxis=dict(tickangle=45),
+    )
+    st.plotly_chart(fig_heat, width="stretch")
 
     # --- Tabela de Referência das Strings de Busca ---
     st.divider()
@@ -968,7 +971,7 @@ def aba_strings(df):
             "Código": st.column_config.TextColumn(width="small"),
             "String de Busca Completa": st.column_config.TextColumn(width="large"),
             "Prioridade": st.column_config.TextColumn(width="small"),
-            "Total Bruto": st.column_config.NumberColumn(width="small"),
+            "Total Bruto": st.column_config.NumberColumn(width="small")
         },
     )
 
