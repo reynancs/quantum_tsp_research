@@ -1,0 +1,138 @@
+=== PAGE 1 ===
+APLICAÇÃO DE QUANTUM ANNEALING AO PROBLEMA DO CAIXEIRO VIAJANTE:
+REVISÃO EXPLORATÓRIA DA LITERATURA EM LOGÍSTICA
+Renan Cardoso dos Santos1; Valéria Loureiro da Silva2 ; Anderson Rafael Correia B. da Silva3;
+1 Mestrando em Gestão de Tecnologia e Inovação; Universidade SENAI CIMATEC; Salvador-BA;
+renan.santos@fbter.org.br
+2 Universidade SENAI CIMATEC; Salvador-BA; valeria.dasilva@fieb.org.br
+3 Universidade SENAI CIMATEC; Salvador-BA; anderson.correia@fieb.org.br
+RESUMO
+O Problema do Caixeiro Viajante (TSP) é um dos problemas de otimização combinatória mais relevantes para a logística,
+sendo classificado como NP-Hard. A computação quântica, particularmente o Quantum Annealing (QA), tem se destacado
+como abordagem promissora para enfrentar a complexidade computacional deste tipo de problema. Este trabalho
+apresenta uma revisão exploratória da literatura sobre a aplicação de algoritmos quânticos ao TSP e suas variantes em
+contextos logísticos. Foram executadas 26 strings de busca na base Lens.org, resultando em 3.696 artigos únicos após
+deduplicação. Os resultados indicam que o QA é o paradigma dominante, com destaque para a plataforma D-Wave.
+Identificaram-se lacunas significativas em abordagens gate-based e em aplicações de aprendizado de máquina quântico
+para roteamento logístico, apontando direções promissoras para pesquisas futuras.
+PALAVRAS-CHAVE: Problema do Caixeiro Viajante; Quantum Annealing; Otimização Combinatória; Logística.
+1. INTRODUÇÃO
+O Problema do Caixeiro Viajante (TSP) consiste em determinar a rota de menor custo que visite um
+conjunto de cidades exatamente uma vez e retorne à origem. Classificado como NP-Hard, o TSP possui
+grande relevância prática, especialmente na logística, onde a otimização de rotas de entrega impacta
+diretamente custos operacionais e eficiência.1 Dentre suas variantes, o TSP com Janelas de Tempo (TSPTW)
+incorpora restrições temporais de atendimento a cada cidade, aproximando-se de cenários logísticos reais
+como distribuição urbana e roteamento de veículos.
+A computação quântica surge como alternativa para explorar o espaço de soluções de problemas
+combinatórios de forma mais eficiente que métodos clássicos. O Quantum Annealing (QA) utiliza o
+tunelamento quântico para buscar o estado de menor energia de um sistema formulado como QUBO
+(Quadratic Unconstrained Binary Optimization), sendo implementado em hardware dedicado como os
+processadores D-Wave.2 Salehi, Glos e Miszczak (2022) propuseram três formulações QUBO para o TSPTW,
+demonstrando a viabilidade de codificar variantes realistas do problema em dispositivos de quantum
+annealing.3
+O objetivo deste trabalho é realizar uma revisão exploratória da literatura sobre a aplicação de
+algoritmos quânticos, com ênfase em Quantum Annealing, ao TSP e suas variantes em logística, identificando
+o volume de produção acadêmica, os algoritmos mais utilizados e as lacunas de pesquisa existentes.
+2. METODOLOGIA
+A metodologia adotada consistiu em uma pesquisa bibliográfica exploratória estruturada em três eixos
+temáticos: (1) o problema — TSP e variantes de otimização combinatória, incluindo VRP, CVRP, Job Shop
+Scheduling e Bin Packing; (2) a tecnologia — paradigmas e algoritmos de computação quântica, como
+Quantum Annealing, QAOA, VQE, Grover e formulações QUBO/Ising; e (3) a aplicação — logística, gestão
+da cadeia de suprimentos e otimização de rotas.
+Foram construídas 26 strings de busca combinando termos dos três eixos com o operador booleano
+AND, executadas na base Lens.org com filtro para Scholarly Works. As strings foram classificadas em
+prioridade Alta (8 strings), Média (10 strings) e Baixa (8 strings), conforme a relevância semântica direta ao
+tema central. A pesquisa foi conduzida em duas fases: a primeira com 16 strings originais baseadas na
+taxonomia inicial do projeto, e a segunda com 10 strings adicionais derivadas da análise do artigo de
+referência de Phillipson (2025).4
+O processo de deduplicação foi realizado em duas etapas: primeiro por DOI (identificador único) e,
+em seguida, por título normalizado para artigos sem DOI. A análise bibliométrica incluiu distribuição temporal,
+geográfica, por tipo de acesso e por paradigma quântico, com geração de visualizações estáticas e um painel
+interativo desenvolvido em Streamlit.
+ISSN 0805-2010 – Anuário de resumos expandidos apresentados no XI SAPCT - SENAI CIMATEC, 2026
+=== PAGE 2 ===
+3. RESULTADOS E DISCUSSÃO
+Do total bruto de 5.320 registros obtidos nas 26 strings de busca, a deduplicação resultou em 3.696
+artigos únicos, com remoção de 1.624 duplicatas (30,5%). A análise revelou um campo em franca expansão:
+61,7% dos artigos foram publicados a partir de 2020, com pico em 2025. A produção acadêmica abrange 49
+países e 1.409 periódicos e conferências distintos, com 82,8% de acesso aberto, o que favorece a
+reprodutibilidade da pesquisa.
+O Quantum Annealing confirmou-se como o paradigma dominante na literatura, concentrando mais
+de 1.200 artigos nas strings diretamente relacionadas. A plataforma D-Wave, com o processador Advantage
+de 5.640 qubits e conectividade Pegasus, é o hardware mais utilizado nos estudos experimentais.2 Em
+contraste, algoritmos variacionais gate-based como QAOA e VQE somaram aproximadamente 150 artigos
+aplicados ao TSP, evidenciando uma lacuna significativa.5
+A catalogação de mais de 40 algoritmos quânticos permitiu identificar seis categorias principais:
+Quantum Annealing (D-Wave QA, Hybrid Solver, Reverse Annealing), algoritmos variacionais (QAOA, VQE,
+F-VQE), algoritmos exatos (Grover, QPE), abordagens híbridas (decomposição + QA, path-slicing),
+aprendizado de máquina quântico (QRL, QACO) e algoritmos quantum-inspired. Destaca-se que a maioria
+das implementações reportadas utiliza abordagens híbridas, combinando processamento quântico com
+solvers clássicos.4
+As principais lacunas identificadas incluem: escassez de soluções gate-based escaláveis para TSP;
+apenas 21 artigos sobre Quantum Reinforcement Learning para roteamento; somente 18 artigos sobre CVRP
+com Quantum Annealing; e limitada validação com dados logísticos reais, predominando benchmarks
+acadêmicos.
+Tabela 1 — Síntese comparativa dos resultados da revisão bibliográfica (Fase 1)
+Dimensão Indicador Resultado Interpretação / Destaque
+Corpus Registros brutos (26 strings) 5.320 Base bruta obtida no Lens.org antes da
+deduplicação.
+Corpus Duplicatas removidas 1.624 (30,5%) Alta sobreposição entre strings indica
+complementaridade das buscas.
+Corpus Artigos únicos 3.696 Base final consolidada para análise
+bibliométrica.
+Temporalidade Publicações a partir de 2020 61,7% Pico em 2025 — campo em franca
+expansão.
+Abrangência Países representados 49 Produção globalmente distribuída.
+Acessibilidade Artigos em Open Access 82,8% Favorece reprodutibilidade e replicabilidade
+da pesquisa.
+Paradigma dominante Quantum Annealing (QA) > 1.200 artigos Hardware de referência: D-Wave
+Advantage (5.640 qubits, Pegasus).
+Paradigma emergente QAOA / VQE aplicados ao TSP ≈ 150 artigos Lacuna frente ao QA; limitações de
+hardware NISQ.
+Taxonomia Algoritmos quânticos catalogados 40+ 6 categorias: QA, variacionais, exatos,
+híbridos, QML e quantum-inspired.
+Taxonomia Padrão de implementação Abordagens híbridas Combinação de processamento quântico
+com solvers clássicos.
+Formulação QUBO TSPTW — nós vs. arestas (Salehi 4 cidades (D-Wave) Arestas reduzem variáveis; nós permitem
+et al., 2022) codificação intuitiva de restrições
+temporais.
+Lacuna Quantum Reinforcement Learning 21 artigos Área emergente e pouco explorada.
+para roteamento
+Lacuna CVRP com Quantum Annealing 18 artigos Aplicação logística direta pouco
+investigada.
+Lacuna Gate-based escaláveis para TSP Escassos Falta de soluções QAOA/VQE com
+escalabilidade demonstrada.
+Lacuna Validação com dados logísticos Limitada Predomínio de benchmarks acadêmicos
+reais sobre casos industriais.
+Fonte: Elaboração Própria.
+4. CONSIDERAÇÕES FINAIS
+A revisão exploratória realizada demonstrou que a aplicação de computação quântica ao TSP é um
+campo em rápida expansão, sustentado por uma base bibliográfica robusta de 3.696 artigos únicos. O
+Quantum Annealing consolidou-se como o paradigma mais maduro e acessível para otimização combinatória,
+enquanto algoritmos variacionais e de aprendizado de máquina quântico representam fronteiras de pesquisa
+ainda pouco exploradas.
+ISSN 0805-2010 – Anuário de resumos expandidos apresentados no XI SAPCT - SENAI CIMATEC, 2026
+=== PAGE 3 ===
+As lacunas identificadas — especialmente em abordagens gate-based para TSP, aprendizado por
+reforço quântico para roteamento e validação com dados logísticos reais — representam oportunidades
+concretas de contribuição científica. As próximas etapas da pesquisa incluem a fundamentação teórica
+aprofundada, a seleção e reprodução de algoritmos em simuladores quânticos, e a comparação experimental
+entre abordagens clássicas e quânticas para instâncias do TSP em contexto logístico.
+Agradecimentos
+Este trabalho foi parcialmente financiado pelo projeto QuIIN FCRH Mestrado TQ suportado pelo QuIIN
+- Quantum Industrial Innovation, Centro de Competência EMBRAPII CIMATEC em Tecnologias Quânticas,
+com recursos financeiros oriundos do PPI IoT/Manufatura 4.0 do MCTI, através do Termo de Cooperação
+053/2023, firmado com a EMBRAPII. Apoio adicional foi fornecido pelo CNPq (Conselho Nacional de
+Desenvolvimento Científico e Tecnológico).
+5. REFERÊNCIAS
+1 APPLEGATE, D. L. et al. The Traveling Salesman Problem: a computational study. Princeton: Princeton
+University Press, 2006.
+2 KADOWAKI, T.; NISHIMORI, H. Quantum annealing in the Transverse Ising model. Physical Review E, v.
+58, n. 5, p. 5355-5363, 1998.
+3 SALEHI, Ö.; GLOS, A.; MISZCZAK, J. A. Unconstrained binary models of the travelling salesman problem
+variants for quantum optimization. Quantum Information Processing, v. 21, n. 67, 2022.
+4 PHILLIPSON, F. Quantum Computing in Logistics and Supply Chain Management: an overview.
+Maastricht University / TNO, 2025.
+5 FARHI, E.; GOLDSTONE, J.; GUTMANN, S. A quantum approximate optimization algorithm. arXiv preprint
+arXiv:1411.4028, 2014.
+ISSN 0805-2010 – Anuário de resumos expandidos apresentados no XI SAPCT - SENAI CIMATEC, 2026

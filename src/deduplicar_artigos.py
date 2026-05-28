@@ -36,6 +36,13 @@ PASTA_CSV = os.path.join(PASTA_PROJETO, "data", "exportacoes_lens")
 # Pasta onde os resultados serao salvos
 PASTA_SAIDA = os.path.join(PASTA_PROJETO, "data")
 
+# Ano de referencia para o calculo da metrica "citacoes_por_ano".
+# Fixado em 2026 (momento do levantamento bibliografico) para manter a
+# metrica reprodutivel ao longo do tempo — em vez de derivar de datetime.now()
+# (que faria os valores mudarem a cada execucao). Atualize quando reexecutar
+# o levantamento em outro ano-base.
+ANO_REFERENCIA = 2026
+
 # Mapeamento: numero da string -> descricao da busca
 # (para facilitar a leitura dos resultados)
 STRINGS_BUSCA = {
@@ -297,6 +304,57 @@ def gerar_resumo_por_string(df):
     return pd.DataFrame(resumo)
 
 
+def adicionar_citacoes_por_ano(df, ano_referencia=ANO_REFERENCIA):
+    """
+    Adiciona a coluna 'citacoes_por_ano' ao DataFrame.
+
+    Formula: Citing Works Count / max(ano_referencia - Publication Year, 1)
+
+    Por que essa metrica:
+        Permite comparar artigos publicados em anos diferentes por uma escala
+        comum (velocidade media de citacao). Artigos antigos acumulam citacoes
+        naturalmente ao longo do tempo — usar o total bruto enviesa o ranking
+        a favor deles, mascarando trabalhos recentes de alto impacto emergente.
+
+    Tratamento de bordas:
+        - Publication Year ausente/invalido -> citacoes_por_ano = NaN.
+        - Publication Year igual ou maior que o ano de referencia (artigos do
+          mesmo ano ou preprints "ahead-of-print") -> divisor minimo de 1 ano,
+          evitando divisao por zero e nao inflando artificialmente a metrica.
+        - Citacoes ausentes -> tratadas como 0 (consistente com o resto do CSV).
+
+    Args:
+        df: DataFrame com colunas "Publication Year" e "Citing Works Count"
+        ano_referencia: ano-base para o calculo (default: ANO_REFERENCIA = 2026)
+
+    Returns:
+        DataFrame com a coluna 'citacoes_por_ano' adicionada (float, 2 casas).
+    """
+    df = df.copy()
+
+    # Conversao tolerante (Lens.org as vezes traz colunas como string)
+    anos = pd.to_numeric(df["Publication Year"], errors="coerce")
+    citacoes = pd.to_numeric(df["Citing Works Count"], errors="coerce").fillna(0)
+
+    # Idade do artigo em anos, com piso de 1 para evitar divisao por zero.
+    # Quando ano_publicacao >= ano_referencia, idade_efetiva = 1.
+    idade = (ano_referencia - anos).clip(lower=1)
+
+    df["citacoes_por_ano"] = (citacoes / idade).round(2)
+    # Onde Publication Year era invalido (NaN), o resultado deve ser NaN
+    # (nao um valor calculado contra um divisor desconhecido).
+    df.loc[anos.isna(), "citacoes_por_ano"] = pd.NA
+
+    # Log informativo
+    validos = df["citacoes_por_ano"].notna().sum()
+    media = df["citacoes_por_ano"].dropna().mean()
+    print(f"\nMetrica 'citacoes_por_ano' calculada (ano de referencia: {ano_referencia}):")
+    print(f"  Artigos com valor valido: {validos} de {len(df)}")
+    print(f"  Media (citacoes/ano):     {media:.2f}")
+
+    return df
+
+
 def salvar_resultados(df_final, stats, resumo_strings, pasta_saida):
     """
     Salva os resultados em arquivos CSV.
@@ -378,13 +436,16 @@ def main():
     # 3. Deduplicar
     df_final, stats = deduplicar(df)
 
-    # 4. Gerar resumo por string
+    # 4. Adicionar metrica 'citacoes_por_ano' (referencia: ANO_REFERENCIA)
+    df_final = adicionar_citacoes_por_ano(df_final)
+
+    # 5. Gerar resumo por string
     resumo_strings = gerar_resumo_por_string(df_final)
 
-    # 5. Salvar resultados
+    # 6. Salvar resultados
     salvar_resultados(df_final, stats, resumo_strings, PASTA_SAIDA)
 
-    # 6. Imprimir resultado final
+    # 7. Imprimir resultado final
     imprimir_resultado_final(stats, resumo_strings)
 
     print("Processo concluido com sucesso!")

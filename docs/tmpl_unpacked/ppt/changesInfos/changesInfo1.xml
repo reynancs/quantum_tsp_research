@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pc:chgInfo xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:ac="http://schemas.microsoft.com/office/drawing/2013/main/command" xmlns:pc="http://schemas.microsoft.com/office/powerpoint/2013/main/command">
+  <pc:docChgLst>
+    <pc:chgData name="Gabriel Lauria da Cruz" userId="e5c136e4-ecda-4537-a4b7-e07e6dac5500" providerId="ADAL" clId="{599CCA62-F4B3-4706-9835-C2C41B290946}"/>
+    <pc:docChg chg="custSel modSld">
+      <pc:chgData name="Gabriel Lauria da Cruz" userId="e5c136e4-ecda-4537-a4b7-e07e6dac5500" providerId="ADAL" clId="{599CCA62-F4B3-4706-9835-C2C41B290946}" dt="2026-02-11T13:06:22.146" v="7" actId="34135"/>
+      <pc:docMkLst>
+        <pc:docMk/>
+      </pc:docMkLst>
+      <pc:sldChg chg="addSp delSp modSp mod">
+        <pc:chgData name="Gabriel Lauria da Cruz" userId="e5c136e4-ecda-4537-a4b7-e07e6dac5500" providerId="ADAL" clId="{599CCA62-F4B3-4706-9835-C2C41B290946}" dt="2026-02-11T13:06:22.146" v="7" actId="34135"/>
+        <pc:sldMkLst>
+          <pc:docMk/>
+          <pc:sldMk cId="0" sldId="256"/>
+        </pc:sldMkLst>
+        <pc:picChg chg="add mod">
+          <ac:chgData name="Gabriel Lauria da Cruz" userId="e5c136e4-ecda-4537-a4b7-e07e6dac5500" providerId="ADAL" clId="{599CCA62-F4B3-4706-9835-C2C41B290946}" dt="2026-02-11T13:06:22.146" v="7" actId="34135"/>
+          <ac:picMkLst>
+            <pc:docMk/>
+            <pc:sldMk cId="0" sldId="256"/>
+            <ac:picMk id="3" creationId="{4CB6D6F4-75FC-907B-F8E0-E8681A058672}"/>
+          </ac:picMkLst>
+        </pc:picChg>
+        <pc:picChg chg="del">
+          <ac:chgData name="Gabriel Lauria da Cruz" userId="e5c136e4-ecda-4537-a4b7-e07e6dac5500" providerId="ADAL" clId="{599CCA62-F4B3-4706-9835-C2C41B290946}" dt="2026-02-11T13:06:14.774" v="0" actId="478"/>
+          <ac:picMkLst>
+            <pc:docMk/>
+            <pc:sldMk cId="0" sldId="256"/>
+            <ac:picMk id="84" creationId="{00000000-0000-0000-0000-000000000000}"/>
+          </ac:picMkLst>
+        </pc:picChg>
+      </pc:sldChg>
+    </pc:docChg>
+  </pc:docChgLst>
+</pc:chgInfo>

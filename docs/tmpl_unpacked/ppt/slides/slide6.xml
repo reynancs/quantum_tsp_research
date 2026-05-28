@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?><p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
+  <p:cSld>
+    <p:spTree>
+      <p:nvGrpSpPr>
+        <p:cNvPr id="1" name="Shape 88"/>
+        <p:cNvGrpSpPr/>
+        <p:nvPr/>
+      </p:nvGrpSpPr>
+      <p:grpSpPr>
+        <a:xfrm>
+          <a:off x="0" y="0"/>
+          <a:ext cx="0" cy="0"/>
+          <a:chOff x="0" y="0"/>
+          <a:chExt cx="0" cy="0"/>
+        </a:xfrm>
+      </p:grpSpPr>
+      <p:pic>
+        <p:nvPicPr>
+          <p:cNvPr id="89" name="Google Shape;89;p14" descr="Imagem em branco e preto  Descrição gerada automaticamente com confiança média"/>
+          <p:cNvPicPr preferRelativeResize="0">
+            <a:picLocks noGrp="1" noRot="1" noMove="1" noResize="1" noEditPoints="1" noAdjustHandles="1" noChangeArrowheads="1" noChangeShapeType="1" noCrop="1"/>
+          </p:cNvPicPr>
+          <p:nvPr/>
+        </p:nvPicPr>
+        <p:blipFill rotWithShape="1">
+          <a:blip r:embed="rId3">
+            <a:alphaModFix/>
+          </a:blip>
+          <a:srcRect/>
+          <a:stretch/>
+        </p:blipFill>
+        <p:spPr>
+          <a:xfrm>
+            <a:off x="0" y="-131380"/>
+            <a:ext cx="12207015" cy="7120759"/>
+          </a:xfrm>
+          <a:prstGeom prst="rect">
+            <a:avLst/>
+          </a:prstGeom>
+          <a:noFill/>
+          <a:ln>
+            <a:noFill/>
+          </a:ln>
+        </p:spPr>
+      </p:pic>
+      <p:pic>
+        <p:nvPicPr>
+          <p:cNvPr id="90" name="Google Shape;90;p14"/>
+          <p:cNvPicPr preferRelativeResize="0">
+            <a:picLocks noGrp="1" noRot="1" noMove="1" noResize="1" noEditPoints="1" noAdjustHandles="1" noChangeArrowheads="1" noChangeShapeType="1" noCrop="1"/>
+          </p:cNvPicPr>
+          <p:nvPr/>
+        </p:nvPicPr>
+        <p:blipFill rotWithShape="1">
+          <a:blip r:embed="rId4">
+            <a:alphaModFix/>
+          </a:blip>
+          <a:srcRect/>
+          <a:stretch/>
+        </p:blipFill>
+        <p:spPr>
+          <a:xfrm>
+            <a:off x="0" y="-158619"/>
+            <a:ext cx="4036355" cy="1180596"/>
+          </a:xfrm>
+          <a:prstGeom prst="rect">
+            <a:avLst/>
+          </a:prstGeom>
+          <a:noFill/>
+          <a:ln>
+            <a:noFill/>
+          </a:ln>
+        </p:spPr>
+      </p:pic>
+      <p:pic>
+        <p:nvPicPr>
+          <p:cNvPr id="91" name="Google Shape;91;p14"/>
+          <p:cNvPicPr preferRelativeResize="0">
+            <a:picLocks noGrp="1" noRot="1" noMove="1" noResize="1" noEditPoints="1" noAdjustHandles="1" noChangeArrowheads="1" noChangeShapeType="1" noCrop="1"/>
+          </p:cNvPicPr>
+          <p:nvPr/>
+        </p:nvPicPr>
+        <p:blipFill rotWithShape="1">
+          <a:blip r:embed="rId5">
+            <a:alphaModFix/>
+          </a:blip>
+          <a:srcRect/>
+          <a:stretch/>
+        </p:blipFill>
+        <p:spPr>
+          <a:xfrm>
+            <a:off x="717244" y="0"/>
+            <a:ext cx="1165087" cy="658966"/>
+          </a:xfrm>
+          <a:prstGeom prst="rect">
+            <a:avLst/>
+          </a:prstGeom>
+          <a:noFill/>
+          <a:ln>
+            <a:noFill/>
+          </a:ln>
+        </p:spPr>
+      </p:pic>
+      <p:pic>
+        <p:nvPicPr>
+          <p:cNvPr id="3" name="Gráfico 2">
+            <a:extLst>
+              <a:ext uri="{FF2B5EF4-FFF2-40B4-BE49-F238E27FC236}">
+                <a16:creationId xmlns:a16="http://schemas.microsoft.com/office/drawing/2014/main" id="{3DA70471-677A-FA6C-6CD2-0CF48F9592F8}"/>
+              </a:ext>
+            </a:extLst>
+          </p:cNvPr>
+          <p:cNvPicPr>
+            <a:picLocks noChangeAspect="1"/>
+          </p:cNvPicPr>
+          <p:nvPr/>
+        </p:nvPicPr>
+        <p:blipFill>
+          <a:blip r:embed="rId6">
+            <a:extLst>
+              <a:ext uri="{96DAC541-7B7A-43D3-8B79-37D633B846F1}">
+                <asvg:svgBlip xmlns:asvg="http://schemas.microsoft.com/office/drawing/2016/SVG/main" r:embed="rId7"/>
+              </a:ext>
+            </a:extLst>
+          </a:blip>
+          <a:stretch>
+            <a:fillRect/>
+          </a:stretch>
+        </p:blipFill>
+        <p:spPr>
+          <a:xfrm>
+            <a:off x="2089122" y="150813"/>
+            <a:ext cx="1121479" cy="488386"/>
+          </a:xfrm>
+          <a:prstGeom prst="rect">
+            <a:avLst/>
+          </a:prstGeom>
+        </p:spPr>
+      </p:pic>
+      <p:sp>
+        <p:nvSpPr><p:cNvPr id="200" name="Motif"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr>
+        <p:spPr>
+          <a:xfrm><a:off x="686000" y="935000"/><a:ext cx="172000" cy="172000"/></a:xfrm>
+          <a:prstGeom prst="roundRect"><a:avLst><a:gd name="adj" fmla="val 28000"/></a:avLst></a:prstGeom>
+          <a:solidFill><a:srgbClr val="D6186D"/></a:solidFill>
+          <a:ln><a:noFill/></a:ln>
+        </p:spPr>
+        <p:txBody><a:bodyPr/><a:lstStyle/><a:p><a:endParaRPr lang="pt-BR"/></a:p></p:txBody>
+      </p:sp>
+      <p:sp>
+        <p:nvSpPr><p:cNvPr id="201" name="Titulo"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr>
+        <p:spPr>
+          <a:xfrm><a:off x="958000" y="690000"/><a:ext cx="10548000" cy="660000"/></a:xfrm>
+          <a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/>
+        </p:spPr>
+        <p:txBody>
+          <a:bodyPr wrap="square" lIns="0" tIns="0" rIns="0" bIns="0" anchor="ctr"><a:normAutofit/></a:bodyPr>
+          <a:lstStyle/>
+          <a:p><a:pPr algn="l"/><a:r><a:rPr lang="pt-BR" sz="2700" b="1" dirty="0"><a:solidFill><a:srgbClr val="1B2A52"/></a:solidFill><a:latin typeface="Calibri"/></a:rPr><a:t>Metodologia: Revisão Bibliográfica Exploratória</a:t></a:r></a:p>
+        </p:txBody>
+      </p:sp>
+      <p:sp>
+        <p:nvSpPr><p:cNvPr id="202" name="Intro"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr>
+        <p:spPr>
+          <a:xfrm><a:off x="686000" y="1520000"/><a:ext cx="4960000" cy="460000"/></a:xfrm>
+          <a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/>
+        </p:spPr>
+        <p:txBody>
+          <a:bodyPr wrap="square" lIns="0" tIns="0" rIns="0" bIns="0" anchor="ctr"/>
+          <a:lstStyle/>
+          <a:p><a:pPr algn="l"/><a:r><a:rPr lang="pt-BR" sz="1350" dirty="0"><a:solidFill><a:srgbClr val="4A4A4A"/></a:solidFill><a:latin typeface="Calibri"/></a:rPr><a:t>Três eixos temáticos combinados com o operador booleano AND:</a:t></a:r></a:p>
+        </p:txBody>
+      </p:sp>
+      <p:sp>
+        <p:nvSpPr><p:cNvPr id="210" name="Eixo1"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr>
+        <p:spPr>
+          <a:xfrm><a:off x="686000" y="2030000"/><a:ext cx="4960000" cy="800000"/></a:xfrm>
+          <a:prstGeom prst="roundRect"><a:avLst><a:gd name="adj" fmla="val 11000"/></a:avLst></a:prstGeom>
+          <a:solidFill><a:srgbClr val="EAEEF7"/></a:solidFill><a:ln><a:noFill/></a:ln>
+        </p:spPr>
+        <p:txBody>
+          <a:bodyPr wrap="square" lIns="228600" tIns="118872" rIns="228600" bIns="118872" anchor="ctr"/>
+          <a:lstStyle/>
+          <a:p><a:pPr algn="l"/><a:r><a:rPr lang="pt-BR" sz="1400" b="1" dirty="0"><a:solidFill><a:srgbClr val="3E5DA8"/></a:solidFill><a:latin typeface="Calibri"/></a:rPr><a:t xml:space="preserve">Problema   </a:t></a:r><a:r><a:rPr lang="pt-BR" sz="1250" dirty="0"><a:solidFill><a:srgbClr val="333333"/></a:solidFill><a:latin typeface="Calibri"/></a:rPr><a:t>TSP, VRP, CVRP, Job Shop Scheduling, Bin Packing</a:t></a:r></a:p>
+        </p:txBody>
+      </p:sp>
+      <p:sp>
+        <p:nvSpPr><p:cNvPr id="211" name="Eixo2"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr>
+        <p:spPr>
+          <a:xfrm><a:off x="686000" y="2900000"/><a:ext cx="4960000" cy="800000"/></a:xfrm>
+          <a:prstGeom prst="roundRect"><a:avLst><a:gd name="adj" fmla="val 11000"/></a:avLst></a:prstGeom>
+          <a:solidFill><a:srgbClr val="EAEEF7"/></a:solidFill><a:ln><a:noFill/></a:ln>
+        </p:spPr>
+        <p:txBody>
+          <a:bodyPr wrap="square" lIns="228600" tIns="118872" rIns="228600" bIns="118872" anchor="ctr"/>
+          <a:lstStyle/>
+          <a:p><a:pPr algn="l"/><a:r><a:rPr lang="pt-BR" sz="1400" b="1" dirty="0"><a:solidFill><a:srgbClr val="3E5DA8"/></a:solidFill><a:latin typeface="Calibri"/></a:rPr><a:t xml:space="preserve">Tecnologia   </a:t></a:r><a:r><a:rPr lang="pt-BR" sz="1250" dirty="0"><a:solidFill><a:srgbClr val="333333"/></a:solidFill><a:latin typeface="Calibri"/></a:rPr><a:t>Quantum Annealing, QAOA, VQE, Grover, QUBO/Ising</a:t></a:r></a:p>
+        </p:txBody>
+      </p:sp>
+      <p:sp>
+        <p:nvSpPr><p:cNvPr id="212" name="Eixo3"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr>
+        <p:spPr>
+          <a:xfrm><a:off x="686000" y="3770000"/><a:ext cx="4960000" cy="800000"/></a:xfrm>
+          <a:prstGeom prst="roundRect"><a:avLst><a:gd name="adj" fmla="val 11000"/></a:avLst></a:prstGeom>
+          <a:solidFill><a:srgbClr val="EAEEF7"/></a:solidFill><a:ln><a:noFill/></a:ln>
+        </p:spPr>
+        <p:txBody>
+          <a:bodyPr wrap="square" lIns="228600" tIns="118872" rIns="228600" bIns="118872" anchor="ctr"/>
+          <a:lstStyle/>
+          <a:p><a:pPr algn="l"/><a:r><a:rPr lang="pt-BR" sz="1400" b="1" dirty="0"><a:solidFill><a:srgbClr val="3E5DA8"/></a:solidFill><a:latin typeface="Calibri"/></a:rPr><a:t xml:space="preserve">Aplicação   </a:t></a:r><a:r><a:rPr lang="pt-BR" sz="1250" dirty="0"><a:solidFill><a:srgbClr val="333333"/></a:solidFill><a:latin typeface="Calibri"/></a:rPr><a:t>Logística, cadeia de suprimentos, otimização de rotas</a:t></a:r></a:p>
+        </p:txBody>
+      </p:sp>
+      <p:sp>
+        <p:nvSpPr><p:cNvPr id="213" name="StringsStrip"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr>
+        <p:spPr>
+          <a:xfrm><a:off x="686000" y="4720000"/><a:ext cx="4960000" cy="1180000"/></a:xfrm>
+          <a:prstGeom prst="roundRect"><a:avLst><a:gd name="adj" fmla="val 8000"/></a:avLst></a:prstGeom>
+          <a:solidFill><a:srgbClr val="1B2A52"/></a:solidFill><a:ln><a:noFill/></a:ln>
+        </p:spPr>
+        <p:txBody>
+          <a:bodyPr wrap="square" lIns="228600" tIns="160020" rIns="228600" bIns="160020" anchor="ctr"/>
+          <a:lstStyle/>
+          <a:p><a:pPr algn="l"/><a:r><a:rPr lang="pt-BR" sz="2400" b="1" dirty="0"><a:solidFill><a:srgbClr val="FFFFFF"/></a:solidFill><a:latin typeface="Calibri"/></a:rPr><a:t>26 strings de busca</a:t></a:r></a:p>
+          <a:p><a:pPr algn="l"><a:spcBef><a:spcPts val="300"/></a:spcBef></a:pPr><a:r><a:rPr lang="pt-BR" sz="1200" dirty="0"><a:solidFill><a:srgbClr val="BFD3F2"/></a:solidFill><a:latin typeface="Calibri"/></a:rPr><a:t>Base Lens.org · Scholarly Works · prioridade Alta (8), Média (10) e Baixa (8)</a:t></a:r></a:p>
+        </p:txBody>
+      </p:sp>
+      <p:pic>
+        <p:nvPicPr><p:cNvPr id="240" name="GraficoStrings"/><p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr><p:nvPr/></p:nvPicPr>
+        <p:blipFill><a:blip r:embed="rId10"/><a:stretch><a:fillRect/></a:stretch></p:blipFill>
+        <p:spPr>
+          <a:xfrm><a:off x="5980000" y="1900000"/><a:ext cx="5530000" cy="3110000"/></a:xfrm>
+          <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
+        </p:spPr>
+      </p:pic>
+      <p:sp>
+        <p:nvSpPr><p:cNvPr id="250" name="Caption"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr>
+        <p:spPr>
+          <a:xfrm><a:off x="5980000" y="5060000"/><a:ext cx="5530000" cy="700000"/></a:xfrm>
+          <a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/>
+        </p:spPr>
+        <p:txBody>
+          <a:bodyPr wrap="square" lIns="0" tIns="0" rIns="0" bIns="0" anchor="t"/>
+          <a:lstStyle/>
+          <a:p><a:pPr algn="l"/><a:r><a:rPr lang="pt-BR" sz="1100" dirty="0"><a:solidFill><a:srgbClr val="6C7689"/></a:solidFill><a:latin typeface="Calibri"/></a:rPr><a:t>As strings #25 e #7 concentram o maior volume; a deduplicação ocorreu por DOI e, em seguida, por título normalizado.</a:t></a:r></a:p>
+        </p:txBody>
+      </p:sp>
+      <p:sp>
+        <p:nvSpPr><p:cNvPr id="290" name="Footer"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr>
+        <p:spPr>
+          <a:xfrm><a:off x="686000" y="6440000"/><a:ext cx="9000000" cy="300000"/></a:xfrm>
+          <a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/>
+        </p:spPr>
+        <p:txBody>
+          <a:bodyPr wrap="square" lIns="0" tIns="0" rIns="0" bIns="0" anchor="ctr"/>
+          <a:lstStyle/>
+          <a:p><a:pPr algn="l"/><a:r><a:rPr lang="pt-BR" sz="900" dirty="0"><a:solidFill><a:srgbClr val="9AA3B5"/></a:solidFill><a:latin typeface="Calibri"/></a:rPr><a:t>XI SAPCT   ·   SENAI CIMATEC   ·   2026</a:t></a:r></a:p>
+        </p:txBody>
+      </p:sp>
+      <p:sp>
+        <p:nvSpPr><p:cNvPr id="291" name="PageNum"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr>
+        <p:spPr>
+          <a:xfrm><a:off x="11000000" y="6440000"/><a:ext cx="506000" cy="300000"/></a:xfrm>
+          <a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/>
+        </p:spPr>
+        <p:txBody>
+          <a:bodyPr wrap="square" lIns="0" tIns="0" rIns="0" bIns="0" anchor="ctr"/>
+          <a:lstStyle/>
+          <a:p><a:pPr algn="r"/><a:r><a:rPr lang="pt-BR" sz="900" b="1" dirty="0"><a:solidFill><a:srgbClr val="3E5DA8"/></a:solidFill><a:latin typeface="Calibri"/></a:rPr><a:t>05</a:t></a:r></a:p>
+        </p:txBody>
+      </p:sp>
+    </p:spTree>
+  </p:cSld>
+  <p:clrMapOvr>
+    <a:masterClrMapping/>
+  </p:clrMapOvr>
+</p:sld>
